@@ -1,0 +1,18 @@
+# Ignore artifacts:
+build
+coverage
+
+# Ignore configuration files
+webpack*.cjs
+eslint.config.js
+.prettierrc
+babel.config.cjs
+
+# Ignore specific JSON files
+package.json
+package-lock.json
+
+# Markdown Files
+README.md
+
+.husky/
