@@ -10,13 +10,13 @@ describe("Ship class", () => {
   });
 
   test("Ship should sink after receiving 3 hits", () => {
-    let destroyer = new Ship(3);
+    const ship = new Ship(0, 0, 3, false);
 
-    expect(destroyer.isSunk()).toBe(false);
-    destroyer.hit(); // 1st hit
-    destroyer.hit(); // 2nd hit
-    expect(destroyer.isSunk()).toBe(false);
-    destroyer.hit(); // Ship sunk
-    expect(destroyer.isSunk()).toBe(true);
+    expect(ship.isSunk()).toBe(false);
+    ship.hit(); // 1st hit
+    ship.hit(); // 2nd hit
+    expect(ship.isSunk()).toBe(false);
+    ship.hit(); // Ship sunk
+    expect(ship.isSunk()).toBe(true);
   });
 });
