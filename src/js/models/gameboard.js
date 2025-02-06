@@ -1,119 +1,121 @@
 import { Ship } from "./ship.js";
+import { ShipManager } from "./shipManager.js";
+import { isCellInBounds, marker } from "./utils.js";
 
 export class Gameboard {
-  size = 10;
-  // Array of 10 arrays, each of length 10, initially contianing null
-  board = Array.from({ length: this.size }, () => Array(this.size).fill(null));
-
-  constructor(shipsSizes = [4, 3, 3, 2, 2, 1, 1, 1]) {
-    this.shipSizes = shipsSizes; // Size of the ships to be placed on the board
-    this.numberOfShips = this.shipSizes.length;
+  constructor() {
+    this.boardSize = 10;
+    // 10x10 board initialized with null values
+    this.board = Array.from({ length: this.boardSize }, () =>
+      Array(this.boardSize).fill(null),
+    );
+    this.shipManager = new ShipManager();
   }
 
-  isCellInBounds(row, col) {
-    return row >= 0 && row < this.size && col >= 0 && col < this.size;
-  }
-
-  canPlaceShip(rowStart, colStart, shipSize, isHorizontal) {
-    let rowEnd = isHorizontal ? rowStart : rowStart + shipSize - 1;
-    let colEnd = isHorizontal ? colStart + shipSize - 1 : colStart;
-    // Ships can't go outside of the board
-    if (
-      !this.isCellInBounds(rowStart, colStart) ||
-      !this.isCellInBounds(rowEnd, colEnd)
-    )
-      return false;
-
-    // Ships must be separated by at least one cell
-    // Checks the area around the coordinates, to see if there is already a ship
-    for (let row = rowStart - 1; row <= rowEnd + 1; ++row) {
-      for (let col = colStart - 1; col <= colEnd + 1; ++col) {
-        if (
-          this.isCellInBounds(row, col) &&
-          this.board[row][col] instanceof Ship
-        )
-          return false;
-      }
-    }
-    return true;
-  }
-
-  placeShip(ship) {
-    for (let i = 0; i < ship.size; ++i) {
-      let row = ship.isHorizontal ? ship.rowStart : ship.rowStart + i;
-      let col = ship.isHorizontal ? ship.colStart + i : ship.colStart;
-      this.board[row][col] = ship;
-    }
-  }
-
-  placeAllShips() {
-    for (let shipSize of this.shipSizes) {
-      let isShipPlaced = false;
-
-      // Initially the ships are randomly placed on the board
-      while (!isShipPlaced) {
-        let rowStart = Math.floor(Math.random() * this.size);
-        let colStart = Math.floor(Math.random() * this.size);
-        let isHorizontal = Math.random() < 0.5;
-
-        if (this.canPlaceShip(rowStart, colStart, shipSize, isHorizontal)) {
-          const ship = new Ship(rowStart, colStart, shipSize, isHorizontal);
-          this.placeShip(ship);
-          isShipPlaced = true;
-        }
-      }
-    }
+  placeShips() {
+    this.shipManager.placeAllShipsOnBoard(this.board);
   }
 
   receiveAttack(row, col) {
-    const MARK = "o"; // Attacked cells
-    const DISABLE = "x"; // Cells that can't be targeted due to game rules
-    if (this.board[row][col] === MARK || this.board[row][col] === DISABLE)
-      return;
+    if (!isCellInBounds(row, col, this.boardSize)) return { markedCells: [] };
 
-    // Since ships can't be next to each other, the corner cells
-    // can be marked to provide advantage for correct guess.
-    const markNearbyCorners = (row, col) => {
-      for (let i = row - 1; i <= row + 1; i += 2) {
-        for (let j = col - 1; j <= col + 1; j += 2) {
-          if (this.isCellInBounds(i, j) && this.board[i][j] === null)
-            this.board[i][j] = DISABLE;
-        }
-      }
-    };
+    // Prevent attacking a cell that is already attacked or blocked
+    if ([marker.MISS, marker.BLOCK, marker.HIT].includes(this.board[row][col]))
+      return { markedCells: [] };
 
-    const markSunkShipArea = (ship) => {
-      let rowStart = ship.rowStart;
-      let colStart = ship.colStart;
-      let rowEnd = ship.isHorizontal ? rowStart : rowStart + ship.size - 1;
-      let colEnd = ship.isHorizontal ? colStart + ship.size - 1 : colStart;
-
-      for (let i = rowStart - 1; i <= rowEnd + 1; ++i) {
-        for (let j = colStart - 1; j <= colEnd + 1; ++j) {
-          if (this.isCellInBounds(i, j) && this.board[i][j] === null)
-            this.board[i][j] = DISABLE;
-        }
-      }
-    };
+    // Computer player will have a set containing all the valid cells to hit,
+    // Marked cells will be removed from the set
+    let markedCells = [`${row}, ${col}`];
+    let isHit = false;
+    let isSunk = false;
+    let adjacentCells = [];
 
     // Attack hits ship
     if (this.board[row][col] instanceof Ship) {
-      let ship = this.board[row][col];
+      const ship = this.board[row][col];
       ship.hit(); // Increase hit counter of the ship
+      isHit = true;
+      this.board[row][col] = marker.HIT;
 
-      // Disable the area around the ship when it sinks
       if (ship.isSunk()) {
-        markSunkShipArea(ship);
-        this.numberOfShips--;
+        this.shipManager.numberOfShips--;
+        markedCells = markedCells.concat(
+          this._markSunkShipArea(row, col, ship),
+        );
+
+        isSunk = true;
       } else {
-        markNearbyCorners(row, col);
+        markedCells = markedCells.concat(this._markNearbyCorners(row, col));
+        adjacentCells = this._getAdjacentCells(row, col);
       }
     } else {
-      this.board[row][col] = MARK;
+      this.board[row][col] = marker.MISS;
+      markedCells = [`${row}, ${col}`];
     }
+    return isHit && !isSunk
+      ? { markedCells, isHit, isSunk, adjacentCells }
+      : { markedCells, isHit, isSunk };
   }
 
-  allShipSunk() {
-    return this.numberOfShips === 0;
+  // When a ship sinks, the surrounding area can't be targeted
+  _markSunkShipArea(row, col, ship) {
+    let { rowStart, colStart, size, isHorizontal } = ship;
+    let rowEnd = isHorizontal ? rowStart : rowStart + size - 1;
+    let colEnd = isHorizontal ? colStart + size - 1 : colStart;
+    const markedCells = [];
+
+    for (let i = rowStart - 1; i <= rowEnd + 1; ++i) {
+      for (let j = colStart - 1; j <= colEnd + 1; ++j) {
+        if (isCellInBounds(i, j, this.boardSize) && this.board[i][j] === null) {
+          this.board[i][j] = marker.BLOCK;
+          markedCells.push(`${i}, ${j}`);
+        }
+      }
+    }
+    return markedCells;
+  }
+
+  // Since ships can't be next to each other, the corner cells can
+  // be marked to indicate that there can't be any ships in those cells.
+  _markNearbyCorners(row, col) {
+    const markedCells = [];
+    for (let i = row - 1; i <= row + 1; i += 2) {
+      for (let j = col - 1; j <= col + 1; j += 2) {
+        if (isCellInBounds(i, j, this.boardSize) && this.board[i][j] === null) {
+          this.board[i][j] = marker.BLOCK;
+          markedCells.push(`${i}, ${j}`);
+        }
+      }
+    }
+    return markedCells;
+  }
+
+  // For computer player to target adjacent cell after hitting a ship
+  _getAdjacentCells(row, col) {
+    // Amount to add to row and col to get each adjacent cell
+    const directions = [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ];
+    const adjacentCells = [];
+    for (let [i, j] of directions) {
+      let adjRow = row + i;
+      let adjCol = col + j;
+
+      if (
+        isCellInBounds(adjRow, adjCol, this.boardSize) &&
+        (this.board[adjRow][adjCol] === null ||
+          this.board[adjRow][adjCol] instanceof Ship)
+      )
+        adjacentCells.push(`${adjRow}, ${adjCol}`);
+    }
+
+    return adjacentCells;
+  }
+
+  areAllShipSunk() {
+    return this.shipManager.numberOfShips === 0;
   }
 }
