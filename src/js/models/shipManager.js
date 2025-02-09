@@ -8,6 +8,10 @@ export class ShipManager {
     this.numberOfShips = this.shipSizes.length;
   }
 
+  createShip(rowStart, colStart, shipSize, isHorizontal) {
+    return new Ship(rowStart, colStart, shipSize, isHorizontal);
+  }
+
   canPlaceShipOnBoard(rowStart, colStart, shipSize, isHorizontal, board) {
     let rowEnd = isHorizontal ? rowStart : rowStart + shipSize - 1;
     let colEnd = isHorizontal ? colStart + shipSize - 1 : colStart;
@@ -59,7 +63,12 @@ export class ShipManager {
             board,
           )
         ) {
-          const ship = new Ship(rowStart, colStart, shipSize, isHorizontal);
+          const ship = this.createShip(
+            rowStart,
+            colStart,
+            shipSize,
+            isHorizontal,
+          );
           this.placeShipOnBoard(ship, board);
           isShipPlaced = true;
         }

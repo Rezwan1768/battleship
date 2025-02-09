@@ -33,23 +33,27 @@ describe("Gameboard class", () => {
     gameboard.receiveAttack(4, 4); // Disabled cell attacked
     gameboard.receiveAttack(2, 8);
 
-    expect(gameboard.board[0][0]).toBe(marker.ATTACKED);
-    expect(gameboard.board[8][2]).toBe(marker.ATTACKED);
-    expect(gameboard.board[4][4]).toBe(marker.DISABLED); // Cell near a sunk ship
-    expect(gameboard.board[1][7]).toBe(marker.DISABLED); // Corner cell of a hit ship
+    expect(gameboard.board[0][0]).toBe(marker.MISS);
+    expect(gameboard.board[8][2]).toBe(marker.MISS);
+    expect(gameboard.board[4][3]).toBe(marker.HIT);
+    expect(gameboard.board[2][8]).toBe(marker.HIT);
+    expect(gameboard.board[4][4]).toBe(marker.BLOCK); // Cell near a sunk ship
+    expect(gameboard.board[1][7]).toBe(marker.BLOCK); // Corner cell of a hit ship
   });
 
   test("receiveAttack correctly updates ship states", () => {
     // Ship 1: [4, 3]
-    shipManager.placeShipOnBoard(new Ship(4, 3, 1, false), gameboard.board);
+    const ship1 = new Ship(4, 3, 1, false);
+    shipManager.placeShipOnBoard(ship1, gameboard.board);
     // Ship 2: [2, 8] to [2, 9]
-    shipManager.placeShipOnBoard(new Ship(2, 8, 2, true), gameboard.board);
+    const ship2 = new Ship(2, 8, 2, true);
+    shipManager.placeShipOnBoard(ship2, gameboard.board);
 
     gameboard.receiveAttack(4, 3);
     gameboard.receiveAttack(2, 8);
 
-    expect(gameboard.board[4][3].isSunk()).toBe(true);
-    expect(gameboard.board[2][8].hits).toBe(1);
-    expect(gameboard.board[2][8].isSunk()).toBe(false);
+    expect(ship1.isSunk()).toBe(true);
+    expect(ship2.hits).toBe(1);
+    expect(ship2.isSunk()).toBe(false);
   });
 });
