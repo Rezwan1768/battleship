@@ -30,7 +30,7 @@ export class Gameboard {
 
     // Computer player will have a set containing all the valid cells to hit,
     // Marked cells will be removed from the set
-    let markedCells = [`${row}, ${col}`];
+    let markedCells = [`${row},${col}`];
     let isHit = false;
     let isSunk = false;
     let adjacentCells = [];
@@ -45,7 +45,6 @@ export class Gameboard {
       if (ship.isSunk()) {
         this.shipManager.numberOfShips--;
         markedCells = markedCells.concat(markSunkShipArea(ship, this.board));
-
         isSunk = true;
       } else {
         markedCells = markedCells.concat(
@@ -55,7 +54,6 @@ export class Gameboard {
       }
     } else {
       this.board[row][col] = marker.MISS;
-      markedCells = [`${row}, ${col}`];
     }
     return isHit && !isSunk
       ? { markedCells, isHit, isSunk, adjacentCells }

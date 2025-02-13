@@ -18,7 +18,7 @@ export function markSunkShipArea(ship, board) {
     for (let j = colStart - 1; j <= colEnd + 1; ++j) {
       if (isCellInBounds(i, j, board.length) && board[i][j] === null) {
         board[i][j] = marker.BLOCK;
-        markedCells.push(`${i}, ${j}`);
+        markedCells.push(`${i},${j}`);
       }
     }
   }
@@ -33,7 +33,7 @@ export function markNearbyCorners(row, col, board) {
     for (let j = col - 1; j <= col + 1; j += 2) {
       if (isCellInBounds(i, j, board.length) && board[i][j] === null) {
         board[i][j] = marker.BLOCK;
-        markedCells.push(`${i}, ${j}`);
+        markedCells.push(`${i},${j}`);
       }
     }
   }
@@ -59,7 +59,7 @@ export function getAdjacentCells(row, col, board) {
       isCellInBounds(adjRow, adjCol, board.length) &&
       (board[adjRow][adjCol] === null || board[adjRow][adjCol] instanceof Ship)
     )
-      adjacentCells.push(`${adjRow}, ${adjCol}`);
+      adjacentCells.push(`${adjRow},${adjCol}`);
   }
 
   return adjacentCells;

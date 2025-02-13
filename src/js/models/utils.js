@@ -7,3 +7,7 @@ export const marker = {
   HIT: "H",
   BLOCK: "X", // Cells that can't be targeted due to game rules
 };
+
+export function getRandomIndex(size) {
+  return Math.floor(Math.random() * size);
+}

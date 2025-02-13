@@ -3,7 +3,7 @@ import { Ship } from "./ship.js";
 
 export class ShipManager {
   boardSize = 10;
-  constructor(shipsSizes = [4, 3, 3, 2, 2, 1, 1, 1]) {
+  constructor(shipsSizes = [7, 3, 3, 2, 2, 1, 1, 1]) {
     this.shipSizes = shipsSizes; // Size of the ships to be placed on the board
     this.numberOfShips = this.shipSizes.length;
   }
