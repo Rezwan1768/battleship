@@ -1,6 +1,6 @@
 import { Ship } from "./ship.js";
 import { ShipManager } from "./shipManager.js";
-import { isCellInBounds, marker } from "./utils.js";
+import { isCellInBounds, isCellMarked, marker } from "./utils.js";
 import {
   markSunkShipArea,
   markNearbyCorners,
@@ -14,22 +14,31 @@ export class Gameboard {
     this.board = Array.from({ length: this.boardSize }, () =>
       Array(this.boardSize).fill(null),
     );
+
+    // Controls ship related functionality
     this.shipManager = new ShipManager();
+  }
+
+  clearBoard() {
+    this.board = Array.from({ length: this.boardSize }, () =>
+      Array(this.boardSize).fill(null),
+    );
   }
 
   placeShips() {
     this.shipManager.placeAllShipsOnBoard(this.board);
   }
 
+  // Returns an object with newly marked cells after attack, and other properties
   receiveAttack(row, col) {
-    if (!isCellInBounds(row, col, this.boardSize)) return { markedCells: [] };
-
-    // Prevent attacking a cell that is already attacked or blocked
-    if ([marker.MISS, marker.BLOCK, marker.HIT].includes(this.board[row][col]))
+    // invalid cell
+    if (
+      !isCellInBounds(row, col, this.boardSize) ||
+      isCellMarked(this.board[row][col])
+    )
       return { markedCells: [] };
 
-    // Computer player will have a set containing all the valid cells to hit,
-    // Marked cells will be removed from the set
+    // Cells marked by attack, the first value is the targeted cell
     let markedCells = [`${row},${col}`];
     let isHit = false;
     let isSunk = false;

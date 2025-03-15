@@ -16,13 +16,16 @@ export class Player {
         }
       }
 
+      // Adjacent cells to the first attacked cell of a ship
       this.adjacentTargets = [];
-      this.hitShipCells = [];
+      this.attackedShipCells = []; // Attacked cells of a ship
       this.switchDirection = false;
+      this.isShipInRow = false;
     }
   }
 
   attack(opponentBoard, x, y) {
+    console.log(x, y);
     return opponentBoard.receiveAttack(x, y);
   }
 
@@ -30,7 +33,8 @@ export class Player {
     if (!this.isComputer) return;
     let attackCoord = null;
 
-    if (this.hitShipCells.length >= 2)
+    // attack in a straight line when two adjacent cells of a ship has been hit
+    if (this.attackedShipCells.length >= 2)
       attackCoord = this.getNextCoordInDirection();
     else if (this.adjacentTargets.length > 0)
       attackCoord = this.getAdjacentCoord();
@@ -45,8 +49,11 @@ export class Player {
 
     if (markedCells.length > 0) this._removeMarkedCells(markedCells);
     if (isHit) {
-      this.hitShipCells.push(attackCoord);
-      if (this.hitShipCells.length === 2) this._determineShipOrientation();
+      this.attackedShipCells.push(attackCoord);
+      // Attacking two adjacent ship cells reveals its orientation (horizontal?)
+      if (this.attackedShipCells.length === 2) this._determineShipOrientation();
+
+      // Only needed to find the second hit, as ships are straight
       if (!isSunk && this.adjacentTargets.length === 0)
         this.adjacentTargets = adjacentCells;
     }
@@ -54,25 +61,22 @@ export class Player {
     // Reset the stored states once the ship sinks
     if (isSunk) {
       this.adjacentTargets = [];
-      this.hitShipCells = [];
+      this.attackedShipCells = [];
       this.switchDirection = false;
     }
   }
 
   // Attack the same row/column of the hit ship, until the ship is sunk
   getNextCoordInDirection() {
-    let [xFirst, yFirst] = this.hitShipCells[0]; // First hit in sequence
-    let [xLast, yLast] = this.hitShipCells[this.hitShipCells.length - 1]; // Most recent hit
-
+    let [xFirst, yFirst] = this.attackedShipCells[0]; // First hit in sequence
+    let [xLast, yLast] = this.attackedShipCells.at(-1); // Most recent hit
     let nextCoord = null;
-    // Next target is the cell next to the last hit cell
-    let direction = this.isShipInRow
-      ? yLast > yFirst
-        ? 1
-        : -1
-      : xLast > xFirst
-        ? 1
-        : -1;
+
+    let direction = 0;
+    // Determine attack direction based on the last hit. It's the next
+    // cell that comes in a straight line
+    if (this.isShipInRow) direction = yLast > yFirst ? 1 : -1;
+    else direction = xLast > xFirst ? 1 : -1;
 
     if (!this.switchDirection) {
       nextCoord = this.isShipInRow
@@ -84,14 +88,15 @@ export class Player {
 
       // Switch directions when target is invalid
       this.switchDirection = true;
-      this.lastHit = [...this.hitShipCells[0]];
+      this.pivotHit = [...this.attackedShipCells[0]];
       direction = -direction; // Change the first attacks direction manually
     }
 
+    // Attack in opposite direction form the first hit cell of the ship.
     nextCoord = this.isShipInRow
-      ? [this.lastHit[0], this.lastHit[1] + direction]
-      : [this.lastHit[0] + direction, this.lastHit[1]];
-    this.lastHit = [...nextCoord]; // Update the lastHit
+      ? [this.pivotHit[0], this.pivotHit[1] + direction]
+      : [this.pivotHit[0] + direction, this.pivotHit[1]];
+    this.pivotHit = [...nextCoord]; // Update the pivotHit
 
     if (this.validCellsToAttack.has(`${nextCoord[0]},${nextCoord[1]}`))
       return nextCoord;
@@ -99,7 +104,7 @@ export class Player {
     return this.getRandomCoord();
   }
 
-  // When a ship is hit, it's other cells will be adjacent to the hit cell
+  // When a ship is hit, one of the adjacent cell is part of the ship
   getAdjacentCoord() {
     let index = getRandomIndex(this.adjacentTargets.length);
     let coord = this.adjacentTargets[index].split(",").map(Number);
@@ -114,8 +119,8 @@ export class Player {
   }
 
   _determineShipOrientation() {
-    let x1 = this.hitShipCells[0][0];
-    let x2 = this.hitShipCells[1][0];
+    let x1 = this.attackedShipCells[0][0];
+    let x2 = this.attackedShipCells[1][0];
     this.isShipInRow = x1 === x2;
   }
 
