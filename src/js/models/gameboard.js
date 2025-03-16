@@ -8,10 +8,11 @@ import {
 } from "./gameboardHelper.js";
 
 export class Gameboard {
+  #board;
   constructor() {
     this.boardSize = 10;
     // 10x10 board initialized with null values
-    this.board = Array.from({ length: this.boardSize }, () =>
+    this.#board = Array.from({ length: this.boardSize }, () =>
       Array(this.boardSize).fill(null),
     );
 
@@ -19,14 +20,18 @@ export class Gameboard {
     this.shipManager = new ShipManager();
   }
 
+  get board() {
+    return this.#board;
+  }
+
   clearBoard() {
-    this.board = Array.from({ length: this.boardSize }, () =>
+    this.#board = Array.from({ length: this.boardSize }, () =>
       Array(this.boardSize).fill(null),
     );
   }
 
   placeShips() {
-    this.shipManager.placeAllShipsOnBoard(this.board);
+    this.shipManager.placeAllShipsOnBoard(this.#board);
   }
 
   // Returns an object with newly marked cells after attack, and other properties
@@ -34,7 +39,7 @@ export class Gameboard {
     // invalid cell
     if (
       !isCellInBounds(row, col, this.boardSize) ||
-      isCellMarked(this.board[row][col])
+      isCellMarked(this.#board[row][col])
     )
       return { markedCells: [] };
 
@@ -45,24 +50,24 @@ export class Gameboard {
     let adjacentCells = [];
 
     // Attack hits ship
-    if (this.board[row][col] instanceof Ship) {
-      const ship = this.board[row][col];
+    if (this.#board[row][col] instanceof Ship) {
+      const ship = this.#board[row][col];
       ship.hit(); // Increase hit counter of the ship
       isHit = true;
-      this.board[row][col] = marker.HIT;
+      this.#board[row][col] = marker.HIT;
 
       if (ship.isSunk()) {
         this.shipManager.numberOfShips--;
-        markedCells = markedCells.concat(markSunkShipArea(ship, this.board));
+        markedCells = markedCells.concat(markSunkShipArea(ship, this.#board));
         isSunk = true;
       } else {
         markedCells = markedCells.concat(
-          markNearbyCorners(row, col, this.board),
+          markNearbyCorners(row, col, this.#board),
         );
-        adjacentCells = getAdjacentCells(row, col, this.board);
+        adjacentCells = getAdjacentCells(row, col, this.#board);
       }
     } else {
-      this.board[row][col] = marker.MISS;
+      this.#board[row][col] = marker.MISS;
     }
     return isHit && !isSunk
       ? { markedCells, isHit, isSunk, adjacentCells }
