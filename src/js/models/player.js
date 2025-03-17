@@ -12,7 +12,9 @@ export class Player {
   }
 
   attack(opponentBoard, x, y) {
-    return opponentBoard.receiveAttack(x, y);
+    console.log(x, y);
+    const { markedCells } = opponentBoard.receiveAttack(x, y);
+    return markedCells;
   }
 
   isGameOver() {

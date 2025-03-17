@@ -4,7 +4,7 @@ import { getRandomIndex } from "./utils.js";
 export class ComputerPlayer extends Player {
   constructor() {
     super();
-    // Computer needs to keep track of what cells are valid to attack
+    // Computer needs to keep track of what opponent cells are valid to attack
     this.validCellsToAttack = new Set();
     for (let row = 0; row < 10; ++row) {
       for (let col = 0; col < 10; ++col) {
@@ -21,20 +21,19 @@ export class ComputerPlayer extends Player {
 
   attack(opponentBoard) {
     let attackCoord = null;
-
     // attack in a straight line when two adjacent cells of a ship has been hit
     if (this.attackedShipCells.length >= 2)
       attackCoord = this.getNextCoordInDirection();
     else if (this.adjacentTargets.length > 0)
       attackCoord = this.getAdjacentCoord();
     else attackCoord = this.getRandomCoord();
-
+    console.log(...attackCoord);
     const {
       markedCells,
       isHit,
       isSunk,
       adjacentCells = [],
-    } = super.attack(opponentBoard, ...attackCoord);
+    } = opponentBoard.receiveAttack(...attackCoord);
 
     if (markedCells.length > 0) this._removeMarkedCells(markedCells);
     if (isHit) {
@@ -42,7 +41,7 @@ export class ComputerPlayer extends Player {
       // Attacking two adjacent ship cells reveals its orientation (horizontal?)
       if (this.attackedShipCells.length === 2) this._determineShipOrientation();
 
-      // Only needed to find the second hit, as ships are straight
+      // Only needed to find the second hit
       if (!isSunk && this.adjacentTargets.length === 0)
         this.adjacentTargets = adjacentCells;
     }
@@ -53,6 +52,8 @@ export class ComputerPlayer extends Player {
       this.attackedShipCells = [];
       this.switchDirection = false;
     }
+
+    return markedCells;
   }
 
   // Attack the same row/column of the hit ship, until the ship is sunk
@@ -95,6 +96,8 @@ export class ComputerPlayer extends Player {
 
   // When a ship is hit, one of the adjacent cell is part of the ship
   getAdjacentCoord() {
+    if (this.adjacentTargets.length === 0) return this.getRandomCoord();
+
     let index = getRandomIndex(this.adjacentTargets.length);
     let coord = this.adjacentTargets[index].split(",").map(Number);
     this.adjacentTargets.splice(index, 1);

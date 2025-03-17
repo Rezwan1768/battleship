@@ -69,9 +69,11 @@ export class Gameboard {
     } else {
       this.#board[row][col] = marker.MISS;
     }
-    return isHit && !isSunk
-      ? { markedCells, isHit, isSunk, adjacentCells }
-      : { markedCells, isHit, isSunk };
+    // return isHit && !isSunk
+    //   ? { markedCells, isHit, isSunk, adjacentCells }
+    //   : { markedCells, isHit, isSunk };
+
+    return { markedCells, isHit, isSunk, adjacentCells };
   }
 
   areAllShipSunk() {
