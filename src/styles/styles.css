@@ -1,0 +1,27 @@
+h1 {
+  color: red;
+}
+
+.gameboard {
+  display: grid;
+  grid-template-columns: repeat(10, 40px);
+  grid-template-rows: repeat(10, 40px);
+  gap: 2px;
+  margin-bottom: 20px;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background-color: lightblue;
+  border: 1px solid navy;
+  cursor: pointer;
+}
+
+.ship {
+  background-color: gray;
+}
+
+.cell:hover {
+  background-color: dodgerblue;
+}

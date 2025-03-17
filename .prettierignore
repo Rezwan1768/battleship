@@ -6,6 +6,7 @@ coverage
 webpack*.cjs
 eslint.config.js
 .prettierrc
+babel.config.cjs
 
 # Ignore specific JSON files
 package.json

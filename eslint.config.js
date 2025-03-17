@@ -12,7 +12,8 @@ export default [
     ignores: [
       "dist/", // Ignore the `dist` directory
       "**/webpack*.cjs", // Ignore files like `webpack.config.cjs` or `webpack.prod.cjs`
-
+      "**/config*.cjs",
+      "test/",
     ],
   },
 ];
