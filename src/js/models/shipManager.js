@@ -95,11 +95,10 @@ export class ShipManager {
 
   moveShip(shipIndex, rowStart, colStart, isHorizontal, board) {
     const ship = this.#ships[shipIndex];
-
     // Remove the ship form the board
     this.removeShip(ship, board);
 
-    // Than update ship coordinates and place it back on the board
+    // Check to see if new position is valid
     const isValidPosition = this.canPlaceShipOnBoard(
       rowStart,
       colStart,
@@ -112,8 +111,8 @@ export class ShipManager {
       ship.updatePosition(rowStart, colStart, isHorizontal);
     }
 
+    // Place it back on the board
     for (let i = 0; i < ship.size; ++i) {
-      console.log("Hello");
       let row = ship.isHorizontal ? ship.rowStart : ship.rowStart + i;
       let col = ship.isHorizontal ? ship.colStart + i : ship.colStart;
       board[row][col] = ship;
