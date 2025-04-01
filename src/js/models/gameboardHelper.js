@@ -9,9 +9,7 @@ import { isCellInBounds, isCellMarked, marker } from "./utils.js";
 // When a ship sinks, the surrounding area can't be targeted
 // Returns the newly marked cells after ship sunk
 export function markSunkShipArea(ship, board) {
-  let { rowStart, colStart, size, isHorizontal } = ship;
-  let rowEnd = isHorizontal ? rowStart : rowStart + size - 1;
-  let colEnd = isHorizontal ? colStart + size - 1 : colStart;
+  let { rowStart, colStart, rowEnd, colEnd } = ship;
   const markedCells = [];
 
   // Ignore already marked cells.

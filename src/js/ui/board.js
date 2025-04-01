@@ -1,17 +1,22 @@
 import { createElement } from "./utils.js";
+import "../../styles/board.css";
 
-export function createGameBoard(boardElement, player, hideShip = false) {
-  for (let row = 0; row < 10; row++) {
-    for (let col = 0; col < 10; col++) {
-      const cell = createElement("button", ["cell"]);
-      cell.dataset.row = row;
-      cell.dataset.col = col;
+export function createBoard(player) {
+  const board = createElement({ element: "div", classes: ["board", "player"] });
+  const boardSize = player.gameboard.boardSize;
 
-      if (!hideShip && player.gameboard.board[row][col] !== null) {
-        cell.classList.add("ship"); // Add CSS class if a ship is present
-      }
-
-      boardElement.appendChild(cell);
+  for (let row = 0; row < boardSize; ++row) {
+    for (let col = 0; col < boardSize; ++col) {
+      const cell = createElement({
+        element: "button",
+        classes: ["cell"],
+        attributes: {
+          "data-row": row,
+          "data-col": col,
+        },
+      });
+      board.appendChild(cell);
     }
   }
+  return board;
 }

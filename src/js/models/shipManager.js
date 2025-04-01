@@ -2,11 +2,16 @@ import { isCellInBounds } from "./utils.js";
 import { Ship } from "./ship.js";
 
 export class ShipManager {
-  boardSize = 10;
-  constructor(shipsSizes = [6, 3, 2, 2, 1, 1, 1]) {
+  #ships = [];
+
+  constructor(boardSize = 10, shipsSizes = [6, 3, 2, 2, 1, 1, 1]) {
+    this.boardSize = boardSize;
     this.shipSizes = shipsSizes; // Size of the ships to be placed on the board
     this.numberOfShips = this.shipSizes.length;
-    this.ships = [];
+  }
+
+  get ships() {
+    return this.#ships;
   }
 
   createShip(rowStart, colStart, shipSize, isHorizontal) {
@@ -44,6 +49,7 @@ export class ShipManager {
       let col = ship.isHorizontal ? ship.colStart + i : ship.colStart;
       board[row][col] = ship;
     }
+    this.ships.push(ship);
   }
 
   placeAllShipsOnBoard(board) {
@@ -75,6 +81,42 @@ export class ShipManager {
           isShipPlaced = true;
         }
       }
+    }
+  }
+
+  // Removes the ship form board, but still keeps the reference in 'ships'
+  removeShip(ship, board) {
+    for (let i = 0; i < ship.size; ++i) {
+      let row = ship.isHorizontal ? ship.rowStart : ship.rowStart + i;
+      let col = ship.isHorizontal ? ship.colStart + i : ship.colStart;
+      board[row][col] = null;
+    }
+  }
+
+  moveShip(shipIndex, rowStart, colStart, isHorizontal, board) {
+    const ship = this.#ships[shipIndex];
+
+    // Remove the ship form the board
+    this.removeShip(ship, board);
+
+    // Than update ship coordinates and place it back on the board
+    const isValidPosition = this.canPlaceShipOnBoard(
+      rowStart,
+      colStart,
+      ship.size,
+      isHorizontal,
+      board,
+    );
+    if (isValidPosition) {
+      // Update the ship's internal data to reflect its new position
+      ship.updatePosition(rowStart, colStart, isHorizontal);
+    }
+
+    for (let i = 0; i < ship.size; ++i) {
+      console.log("Hello");
+      let row = ship.isHorizontal ? ship.rowStart : ship.rowStart + i;
+      let col = ship.isHorizontal ? ship.colStart + i : ship.colStart;
+      board[row][col] = ship;
     }
   }
 }

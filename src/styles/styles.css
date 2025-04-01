@@ -1,7 +1,24 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: rgb(74, 74, 74);
+  height: 1000px;
+}
 h1 {
   color: red;
 }
 
+/* 
 .gameboard {
   display: grid;
   grid-template-columns: repeat(10, 40px);
@@ -22,6 +39,7 @@ h1 {
   background-color: gray;
 }
 
+
 .cell:hover {
   background-color: dodgerblue;
-}
+} */

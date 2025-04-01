@@ -9,24 +9,39 @@ import {
 
 export class Gameboard {
   #board;
+  #boardSize = 10;
   constructor() {
-    this.boardSize = 10;
     // 10x10 board initialized with null values
-    this.#board = Array.from({ length: this.boardSize }, () =>
-      Array(this.boardSize).fill(null),
+    this.#board = Array.from({ length: this.#boardSize }, () =>
+      Array(this.#boardSize).fill(null),
     );
 
     // Controls ship related functionality
-    this.shipManager = new ShipManager();
+    this.shipManager = new ShipManager(this.#boardSize);
+    this.ships = this.shipManager.ships;
   }
 
   get board() {
     return this.#board;
   }
 
+  get boardSize() {
+    return this.#boardSize;
+  }
+
   clearBoard() {
-    this.#board = Array.from({ length: this.boardSize }, () =>
-      Array(this.boardSize).fill(null),
+    this.#board = Array.from({ length: this.#boardSize }, () =>
+      Array(this.#boardSize).fill(null),
+    );
+  }
+
+  canPlaceShip(rowStart, colStart, shipSize, isHorizontal) {
+    return this.shipManager.canPlaceShipOnBoard(
+      rowStart,
+      colStart,
+      shipSize,
+      isHorizontal,
+      this.#board,
     );
   }
 
@@ -34,11 +49,26 @@ export class Gameboard {
     this.shipManager.placeAllShipsOnBoard(this.#board);
   }
 
+  removeShip(ship) {
+    this.shipManager.removeShip(ship, this.#board);
+  }
+
+  moveShip(shipId, rowStart, colStart, isHorizontal) {
+    this.shipManager.moveShip(
+      shipId,
+      rowStart,
+      colStart,
+      isHorizontal,
+      this.board,
+    );
+    console.log(this.board);
+  }
+
   // Returns an object with newly marked cells after attack, and other properties
   receiveAttack(row, col) {
     // invalid cell
     if (
-      !isCellInBounds(row, col, this.boardSize) ||
+      !isCellInBounds(row, col, this.#boardSize) ||
       isCellMarked(this.#board[row][col])
     )
       return { markedCells: [] };

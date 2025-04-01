@@ -1,10 +1,11 @@
 import { Gameboard } from "./gameboard.js";
 
 export class Player {
-  #gameboard;
+  #gameboard = new Gameboard();
   constructor() {
-    this.#gameboard = new Gameboard();
     this.#gameboard.placeShips();
+    this.board = this.#gameboard.board;
+    this.ships = this.#gameboard.ships;
   }
 
   get gameboard() {

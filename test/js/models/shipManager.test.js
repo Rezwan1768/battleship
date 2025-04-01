@@ -78,8 +78,6 @@ describe("shipManager class", () => {
   });
 
   test("placeShip method should correctly place ships on the board", () => {
-    // placeShip(rowStart, colStart, shipSize, isHorizontal)
-
     // Ship 1: [4, 3] to [6, 3]
     shipManager.placeShipOnBoard(new Ship(4, 3, 3, false), gameboard.board);
     // Ship2: [2, 8] to [2, 9]
@@ -93,5 +91,29 @@ describe("shipManager class", () => {
     expect(gameboard.board[4][3]).toBe(gameboard.board[6][3]);
     expect(gameboard.board[2][8]).toBe(gameboard.board[2][9]);
     expect(gameboard.board[4][3] === gameboard.board[2][8]).toBe(false);
+  });
+
+  test("Move ship should correctly move the ship to a new coordinate", () => {
+    const ship1 = new Ship(4, 3, 3, false); // Ship 1: [4, 3] to [6, 3]
+    const ship2 = new Ship(2, 8, 2, true); // Ship2: [2, 8] to [2, 9]
+    shipManager.placeShipOnBoard(ship1, gameboard.board);
+    shipManager.placeShipOnBoard(ship2, gameboard.board);
+
+    // moveShip(shipIndex, rowStart, colStart)
+    shipManager.moveShip(0, 3, 3, false, gameboard.board);
+    shipManager.moveShip(1, 8, 9, false, gameboard.board);
+    console.log(ship1);
+    expect(ship1).toMatchObject({
+      rowStart: 3,
+      colStart: 3,
+      rowEnd: 5,
+      colEnd: 3,
+    });
+    expect(ship2).toMatchObject({
+      rowStart: 8,
+      colStart: 9,
+      rowEnd: 9,
+      colEnd: 9,
+    });
   });
 });
