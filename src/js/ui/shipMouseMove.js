@@ -1,96 +1,127 @@
-export function mouseMoveHandler(
-  gameboard,
-  shipParts,
-  shipInfo,
-  startX,
-  startY,
-) {
-  // Stores the cells the ship is currently hovering over
-  // to apply and remove ghost effects.
+import { getStartingCell, getShipInfo } from "./utils.js";
+
+export function mouseMoveHandler(gameboard, shipSegments, startX, startY) {
+  // Tracks cells under the hovering ship for ghost effects
   let currentGhostCells = [];
 
   function onMouseMove(event) {
-    // Remove ghost effect from previously hovered cells and reset the list
+    // Remove previous visual indicators before updating new ones.
     currentGhostCells.forEach((cell) => cell.classList.remove("ghost"));
     currentGhostCells = [];
-    shipParts.forEach((part) => part.classList.remove("invalid"));
+    shipSegments.forEach((segment) => segment.classList.remove("invalid"));
 
-    const boardBox = document
-      .querySelector(".board.player")
-      .getBoundingClientRect();
-    const { shipSize, isHorizontal, shipPartNumber } = shipInfo;
-    const shipPartSize = boardBox.width / gameboard.boardSize;
+    const playerBoard = document.querySelector(".board.player");
+    const boardBox = playerBoard.getBoundingClientRect();
 
-    // Calculate movement delta since `translate` only affects visuals,
-    // not the element's actual DOM position.
-    // startX / startY: Ships initial coordinate on the DOM.
-    let deltaX = event.clientX - startX;
-    let deltaY = event.clientY - startY;
+    const shipInfo = getShipInfo(event.target);
+    const { shipSize, isHorizontal } = shipInfo;
+    const segmentSize = boardBox.width / gameboard.boardSize;
 
-    // Mouse position relative to board
-    const mouseX = event.clientX - boardBox.left;
-    const mouseY = event.clientY - boardBox.top;
-    // Find the cell the mouse is pointing to
-    const targetRow = Math.floor(mouseY / shipPartSize);
-    const targetCol = Math.floor(mouseX / shipPartSize);
-
-    // Calculate the starting row and column of the ship's new position
-    // Adjust based on the piece number to ensure the ship is positioned correctly
-    const startRow = isHorizontal ? targetRow : targetRow - shipPartNumber;
-    const startCol = isHorizontal ? targetCol - shipPartNumber : targetCol;
-
-    const canPlaceShip = gameboard.canPlaceShip(
-      startRow,
-      startCol,
-      shipSize,
-      isHorizontal,
+    // Determine the  cell where the first segment of the ship will be placed
+    const [startRow, startCol] = getStartingCell(
+      { x: event.clientX, y: event.clientY },
+      boardBox,
+      shipInfo,
+      segmentSize,
     );
 
-    shipParts.forEach((shipPart, index) => {
-      let newRow = isHorizontal ? startRow : startRow + index;
-      let newCol = isHorizontal ? startCol + index : startCol;
-      const cell = document.querySelector(
-        `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
-      );
-      if (cell) {
-        if (canPlaceShip) {
+    if (gameboard.canPlaceShip(startRow, startCol, shipSize, isHorizontal)) {
+      // Identify and process the cells where the ship might be placed
+      for (let index = 0; index < shipSize; ++index) {
+        let newRow = isHorizontal ? startRow : startRow + index;
+        let newCol = isHorizontal ? startCol + index : startCol;
+        const cell = document.querySelector(
+          `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
+        );
+        if (cell) {
           cell.classList.add("ghost");
           currentGhostCells.push(cell);
-        } else {
-          shipPart.classList.add("invalid");
         }
       }
-    });
+    } else {
+      shipSegments.forEach((segment) => segment.classList.add("invalid"));
+    }
 
-    // Prevent ships from being dragged outside of the player board
-    const firstShipPartBox = shipParts[0].getBoundingClientRect();
-    const lastShipPartBox =
-      shipParts[shipParts.length - 1].getBoundingClientRect();
-    const padding = shipPartSize / 3;
-
+    // Ship can't be dragged outside of board
     if (
-      firstShipPartBox.left < boardBox.left - padding ||
-      lastShipPartBox.right > boardBox.right + padding ||
-      firstShipPartBox.top < boardBox.top - padding ||
-      lastShipPartBox.bottom > boardBox.bottom + padding
+      !playerBoard.contains(event.target) ||
+      isShipOutOfBounds(shipSegments, shipInfo, segmentSize, event)
     ) {
-      // Remove ghost highlights
+      // Remove all visual indicators
       currentGhostCells.forEach((cell) => cell.classList.remove("ghost"));
       currentGhostCells = [];
-      shipParts.forEach((part) => part.classList.remove("invalid"));
+      shipSegments.forEach((segment) =>
+        segment.classList.remove("invalid", "hover"),
+      );
 
-      // Moves ship back to it's previous position
-      for (let shipPart of shipParts) {
-        shipPart.style.transform = `translate(0px, 0px)`;
-      }
+      // Reset ship to its previous position in the UI board
+      shipSegments.forEach(
+        (segment) => (segment.style.transform = `translate(0px, 0px)`),
+      );
       document.removeEventListener("mousemove", onMouseMove);
     } else {
+      // Calculate movement delta since `translate` only affects visuals,
+      // not the element's actual DOM position.
+      // startX / startY: Ships initial coordinate on the DOM.
+      let deltaX = event.clientX - startX;
+      let deltaY = event.clientY - startY;
+
       // Move ship to new location
-      for (let shipPart of shipParts) {
-        shipPart.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-      }
+      shipSegments.forEach((segment) => {
+        segment.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+      });
     }
   }
-
   return onMouseMove;
+}
+
+// Returns true if the ship goes out of the board
+function isShipOutOfBounds(
+  shipSegments,
+  shipInfo,
+  segmentSize,
+  mouseMoveEventObj,
+) {
+  const { shipSize, segmentNumber, isHorizontal } = shipInfo;
+  const boardBox = document
+    .querySelector(".board.player")
+    .getBoundingClientRect();
+  const segmentBox = shipSegments[0].getBoundingClientRect();
+  const padding = shipSize * segmentSize;
+  const startSegment = 0;
+  const endSegment = shipSize - 1;
+
+  // Calculate the offset for each side of the the ship to
+  // ensure that the ships bounds are correctly checked
+  const leftOffset = segmentSize * (startSegment - segmentNumber);
+  const rightOffset = segmentSize * (endSegment - segmentNumber);
+  const topOffset = leftOffset;
+  const bottomOffset = rightOffset;
+
+  // Get the current scroll positions of the page
+  const scrollX = window.scrollX;
+  const scrollY = window.scrollY;
+  // Get the mouse coordinates relative to the board
+  const mouseX = mouseMoveEventObj.clientX - boardBox.left;
+  const mouseY = mouseMoveEventObj.clientY - boardBox.top;
+
+  // Calculate the bounds of the ship based on mouse position and ship offsets
+  const shipLeft = isHorizontal
+    ? mouseX + leftOffset
+    : segmentBox.left + scrollX;
+  const shipRight = isHorizontal
+    ? mouseX + rightOffset
+    : segmentBox.right + scrollX;
+  const shipTop = !isHorizontal ? mouseY + topOffset : segmentBox.top + scrollY;
+  const shipBot = !isHorizontal
+    ? mouseY + bottomOffset
+    : segmentBox.bottom + scrollY;
+
+  // Return true if any side of the ship exceeds the board boundaries
+  return (
+    shipLeft < boardBox.left + scrollX - padding ||
+    shipRight > boardBox.right + scrollX + padding ||
+    shipTop < boardBox.top + scrollY - padding ||
+    shipBot > boardBox.bottom + scrollY + padding
+  );
 }

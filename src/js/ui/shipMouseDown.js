@@ -1,26 +1,35 @@
 import { mouseMoveHandler } from "./shipMouseMove.js";
 import { mouseUpHandler } from "./shipMouseUp.js";
+import { getShipInfo, getStartingCell } from "./utils.js";
+import { enableRotation } from "./shipRotation.js";
 
 export function onMouseDown(gameboard) {
   return (event) => {
-    const ship = event.target;
-    const shipInfo = {
-      shipId: Number(ship.dataset.id),
-      shipPartNumber: Number(ship.dataset.pieceNumber),
-      shipSize: Number(ship.dataset.size),
-      isHorizontal: ship.dataset.isRow === "true",
-    };
+    const shipSegment = event.target;
+    const shipInfo = getShipInfo(shipSegment);
+    const boardBox = document
+      .querySelector(".board.player")
+      .getBoundingClientRect();
+    const segmentSize = boardBox.width / gameboard.boardSize;
 
-    // Get the initial ship (mouse) position
+    // Store the ship/mouse position on 'mousedown'
     let startX = event.clientX;
     let startY = event.clientY;
 
-    // Get the individual parts of the ship
-    const shipParts = document.querySelectorAll(
+    // Get location of the first segment of the targeted ship
+    const [initialRow, initialCol] = getStartingCell(
+      { x: event.clientX, y: event.clientY },
+      boardBox,
+      shipInfo,
+      segmentSize,
+    );
+
+    // Get the individual segments of the ship
+    const shipSegments = document.querySelectorAll(
       `.ship[data-id="${shipInfo.shipId}"]`,
     );
-    for (let shipPart of shipParts) {
-      shipPart.classList.add("hover");
+    for (let segment of shipSegments) {
+      segment.classList.add("hover");
     }
 
     // Remove the ship from the logical game board (not the UI)
@@ -29,18 +38,22 @@ export function onMouseDown(gameboard) {
 
     const onMouseMove = mouseMoveHandler(
       gameboard,
-      shipParts,
-      shipInfo,
+      shipSegments,
       startX,
       startY,
     );
+    const onKeyDown = enableRotation(shipSegments);
     const onMouseUp = mouseUpHandler(
       gameboard,
-      shipParts,
+      shipSegments,
       shipInfo,
+      initialRow,
+      initialCol,
+      onKeyDown,
       onMouseMove,
     );
 
+    document.addEventListener("keydown", onKeyDown);
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
   };

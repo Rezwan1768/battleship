@@ -17,9 +17,9 @@
   cursor: pointer;
 }
 
-.cell:hover {
+/* .cell:hover {
   background-color: orange;
-}
+} */
 
 .cell.ghost {
   background-color: rgba(0, 255, 0, 0.5);
