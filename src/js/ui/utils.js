@@ -31,9 +31,9 @@ export function getStartingCell(mouseCoord, boardBox, shipInfo, partSize) {
   // Determine the starting cell where the ship will be placed
   const adjustedRow = shipInfo.isHorizontal
     ? targetRow
-    : targetRow - shipInfo.shipPartNumber;
+    : targetRow - shipInfo.segmentNumber;
   const adjustedCol = shipInfo.isHorizontal
-    ? targetCol - shipInfo.shipPartNumber
+    ? targetCol - shipInfo.segmentNumber
     : targetCol;
   return [adjustedRow, adjustedCol];
 }
@@ -41,7 +41,7 @@ export function getStartingCell(mouseCoord, boardBox, shipInfo, partSize) {
 export function getShipInfo(shipSegment) {
   return {
     shipId: Number(shipSegment.dataset.id),
-    shipPartNumber: Number(shipSegment.dataset.pieceNumber),
+    segmentNumber: Number(shipSegment.dataset.pieceNumber),
     shipSize: Number(shipSegment.dataset.size),
     isHorizontal: shipSegment.dataset.isRow === "true",
   };

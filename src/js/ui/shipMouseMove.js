@@ -1,19 +1,28 @@
 import { getStartingCell, getShipInfo } from "./utils.js";
 
-export function mouseMoveHandler(gameboard, shipSegments, startX, startY) {
-  // Tracks cells under the hovering ship for ghost effects
-  let currentGhostCells = [];
+export function mouseMoveHandler(
+  gameboard,
+  shipSegments,
+  target,
+  currentGhostCells,
+  startX,
+  startY,
+) {
+  let hiddenShipSegments = []; // Hide segments when another ship is hovered over
 
   function onMouseMove(event) {
     // Remove previous visual indicators before updating new ones.
-    currentGhostCells.forEach((cell) => cell.classList.remove("ghost"));
-    currentGhostCells = [];
-    shipSegments.forEach((segment) => segment.classList.remove("invalid"));
+    currentGhostCells.forEach((cell) =>
+      cell.classList.remove("valid", "invalid"),
+    );
+    currentGhostCells.length = 0;
+    hiddenShipSegments.forEach((segment) => segment.classList.remove("hide"));
+    //shipSegments.forEach((segment) => segment.classList.remove("invalid"));
 
     const playerBoard = document.querySelector(".board.player");
     const boardBox = playerBoard.getBoundingClientRect();
 
-    const shipInfo = getShipInfo(event.target);
+    const shipInfo = getShipInfo(target);
     const { shipSize, isHorizontal } = shipInfo;
     const segmentSize = boardBox.width / gameboard.boardSize;
 
@@ -34,12 +43,29 @@ export function mouseMoveHandler(gameboard, shipSegments, startX, startY) {
           `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
         );
         if (cell) {
-          cell.classList.add("ghost");
+          cell.classList.add("valid");
           currentGhostCells.push(cell);
         }
       }
     } else {
-      shipSegments.forEach((segment) => segment.classList.add("invalid"));
+      for (let index = 0; index < shipSize; ++index) {
+        // If the ship placement is invalid, apply styles to indicate the error
+        let newRow = isHorizontal ? startRow : startRow + index;
+        let newCol = isHorizontal ? startCol + index : startCol;
+        const cell = document.querySelector(
+          `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
+        );
+        if (cell) {
+          cell.classList.add("invalid");
+          currentGhostCells.push(cell);
+          const shipPart = cell.querySelector(".ship");
+          if (shipPart) {
+            shipPart.classList.add("hide");
+            hiddenShipSegments.push(shipPart);
+          }
+        }
+      }
+      //shipSegments.forEach((segment) => segment.classList.add("invalid"));
     }
 
     // Ship can't be dragged outside of board
@@ -48,8 +74,11 @@ export function mouseMoveHandler(gameboard, shipSegments, startX, startY) {
       isShipOutOfBounds(shipSegments, shipInfo, segmentSize, event)
     ) {
       // Remove all visual indicators
-      currentGhostCells.forEach((cell) => cell.classList.remove("ghost"));
+      currentGhostCells.forEach((cell) =>
+        cell.classList.remove("valid", "invalid"),
+      );
       currentGhostCells = [];
+      hiddenShipSegments.forEach((segment) => segment.classList.remove("hide"));
       shipSegments.forEach((segment) =>
         segment.classList.remove("invalid", "hover"),
       );
@@ -87,7 +116,9 @@ function isShipOutOfBounds(
     .querySelector(".board.player")
     .getBoundingClientRect();
   const segmentBox = shipSegments[0].getBoundingClientRect();
-  const padding = shipSize * segmentSize;
+  //const padding = (shipSize) * segmentSize;
+  const padding = segmentSize;
+
   const startSegment = 0;
   const endSegment = shipSize - 1;
 

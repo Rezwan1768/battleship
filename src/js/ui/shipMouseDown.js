@@ -12,6 +12,14 @@ export function onMouseDown(gameboard) {
       .getBoundingClientRect();
     const segmentSize = boardBox.width / gameboard.boardSize;
 
+    // Get the individual segments of the ship
+    const shipSegments = document.querySelectorAll(
+      `.ship[data-id="${shipInfo.shipId}"]`,
+    );
+    for (let segment of shipSegments) {
+      segment.classList.add("hover");
+    }
+
     // Store the ship/mouse position on 'mousedown'
     let startX = event.clientX;
     let startY = event.clientY;
@@ -24,12 +32,18 @@ export function onMouseDown(gameboard) {
       segmentSize,
     );
 
-    // Get the individual segments of the ship
-    const shipSegments = document.querySelectorAll(
-      `.ship[data-id="${shipInfo.shipId}"]`,
-    );
-    for (let segment of shipSegments) {
-      segment.classList.add("hover");
+    // Tracks cells under the hovering ship for ghost effects
+    let currentGhostCells = [];
+    for (let index = 0; index < shipInfo.shipSize; ++index) {
+      let newRow = shipInfo.isHorizontal ? initialRow : initialRow + index;
+      let newCol = shipInfo.isHorizontal ? initialCol + index : initialCol;
+      const cell = document.querySelector(
+        `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
+      );
+      if (cell) {
+        cell.classList.add("valid");
+        currentGhostCells.push(cell);
+      }
     }
 
     // Remove the ship from the logical game board (not the UI)
@@ -39,10 +53,17 @@ export function onMouseDown(gameboard) {
     const onMouseMove = mouseMoveHandler(
       gameboard,
       shipSegments,
+      shipSegment,
+      currentGhostCells,
       startX,
       startY,
     );
-    const onKeyDown = enableRotation(shipSegments);
+    const onKeyDown = enableRotation(
+      shipSegments,
+      shipSegment,
+      gameboard,
+      currentGhostCells,
+    );
     const onMouseUp = mouseUpHandler(
       gameboard,
       shipSegments,

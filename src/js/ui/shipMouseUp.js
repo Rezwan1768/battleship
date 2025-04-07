@@ -11,8 +11,8 @@ export function mouseUpHandler(
 ) {
   function onMouseUp(event) {
     // Get updated information about the ship
-    const updatedSipInfo = getShipInfo(event.target);
-    const { shipId, shipSize, isHorizontal } = updatedSipInfo;
+    const updatedShipInfo = getShipInfo(event.target);
+    const { shipId, shipSize, isHorizontal } = updatedShipInfo;
     const boardBox = document
       .querySelector(".board.player")
       .getBoundingClientRect();
@@ -22,7 +22,7 @@ export function mouseUpHandler(
     const [startRow, startCol] = getStartingCell(
       { x: event.clientX, y: event.clientY },
       boardBox,
-      updatedSipInfo,
+      updatedShipInfo,
       segmentSize,
     );
 
@@ -35,14 +35,29 @@ export function mouseUpHandler(
           `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
         );
         if (newParent) {
-          newParent.classList.remove("ghost");
+          newParent.classList.remove("valid");
           segment.remove(); // Remove the segment from its original location
           newParent.appendChild(segment); // Append it to the new cell
         }
       });
+
       // Update the ship's position in the logical game board
       gameboard.moveShip(shipId, startRow, startCol, isHorizontal);
     } else {
+      // Remove the invalid styles when the ship can't be placed
+      shipSegments.forEach((segment, index) => {
+        let newRow = isHorizontal ? startRow : startRow + index;
+        let newCol = isHorizontal ? startCol + index : startCol;
+        const cell = document.querySelector(
+          `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
+        );
+        if (cell) {
+          cell.classList.remove("invalid");
+          const shipPart = cell.querySelector(".ship");
+          if (shipPart) shipPart.classList.remove("hide");
+        }
+      });
+
       // Since the ship gets removed form the logical game board on 'mouseDown',
       // It needs to be re-added back even if the position didn't change.
       gameboard.moveShip(
@@ -58,8 +73,6 @@ export function mouseUpHandler(
         (segment) => (segment.dataset.isRow = shipInfo.isHorizontal),
       );
     }
-    console.log(gameboard.board);
-    console.log(gameboard.ships);
 
     // Remove all visual indicators
     for (let segment of shipSegments) {
