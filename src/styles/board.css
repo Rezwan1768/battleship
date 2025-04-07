@@ -7,18 +7,19 @@
   /* margin-left: 100px; */
 }
 
-/* .board.player {
-  
-} */
-
 .board > .cell {
   background-color: rgb(97, 151, 170);
   border: 2px solid navy;
-  cursor: pointer;
+  outline: none;
 }
 
-.cell:hover {
-  background-color: orange;
+.cell.valid {
+  background-color: rgba(0, 255, 0, 0.5);
+  /* Light green highlight */
+}
+
+.cell.invalid {
+  background-color: red;
 }
 
 .cell.ghost {
@@ -32,8 +33,13 @@
   height: 100%;
 }
 
+.ship.hide {
+  opacity: 0;
+}
+
 .ship.hover {
   background-color: blue;
+  opacity: 0;
 }
 
 .ship.invalid {

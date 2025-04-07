@@ -1,57 +1,87 @@
-export function mouseUpHandler(gameboard, shipParts, shipInfo, onMouseMove) {
+import { getShipInfo, getStartingCell } from "./utils.js";
+
+export function mouseUpHandler(
+  gameboard,
+  shipSegments,
+  shipInfo,
+  initialRow,
+  initialCol,
+  onKeyDown,
+  onMouseMove,
+) {
   function onMouseUp(event) {
+    // Get updated information about the ship
+    const updatedShipInfo = getShipInfo(event.target);
+    const { shipId, shipSize, isHorizontal } = updatedShipInfo;
     const boardBox = document
       .querySelector(".board.player")
       .getBoundingClientRect();
-    const { shipId, shipSize, isHorizontal, shipPartNumber } = shipInfo;
-    const shipPartSize = boardBox.width / gameboard.boardSize;
+    const segmentSize = boardBox.width / gameboard.boardSize;
 
-    // Mouse position relative to board
-    const mouseX = event.clientX - boardBox.left;
-    const mouseY = event.clientY - boardBox.top;
-    // Find the cell the mouse is pointing to
-    const targetRow = Math.floor(mouseY / shipPartSize);
-    const targetCol = Math.floor(mouseX / shipPartSize);
+    // Determine the cell where the first segment of the ship will be placed
+    const [startRow, startCol] = getStartingCell(
+      { x: event.clientX, y: event.clientY },
+      boardBox,
+      updatedShipInfo,
+      segmentSize,
+    );
 
-    // Calculate the starting row and column of the ship's new position
-    // Adjust based on the piece number to ensure the ship is positioned correctly
-    const startRow = isHorizontal ? targetRow : targetRow - shipPartNumber;
-    const startCol = isHorizontal ? targetCol - shipPartNumber : targetCol;
-
-    // Update the ship's position in the UI board
-    shipParts.forEach((shipPart, index) => {
-      let newRow = isHorizontal ? startRow : startRow + index;
-      let newCol = isHorizontal ? startCol + index : startCol;
-
-      // Find the new grid cell and move the ship part there
-      const newParent = document.querySelector(
-        `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
-      );
-      if (newParent) {
-        newParent.classList.remove("ghost");
-
-        if (
-          gameboard.canPlaceShip(startRow, startCol, shipSize, isHorizontal)
-        ) {
-          shipPart.remove(); // Remove the ship part from its original location
-          newParent.appendChild(shipPart); // Append it to the new cell
+    if (gameboard.canPlaceShip(startRow, startCol, shipSize, isHorizontal)) {
+      // Update the ship's position in the UI board
+      shipSegments.forEach((segment, index) => {
+        let newRow = isHorizontal ? startRow : startRow + index;
+        let newCol = isHorizontal ? startCol + index : startCol;
+        const newParent = document.querySelector(
+          `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
+        );
+        if (newParent) {
+          newParent.classList.remove("valid");
+          segment.remove(); // Remove the segment from its original location
+          newParent.appendChild(segment); // Append it to the new cell
         }
-      }
-    });
+      });
 
-    for (let shipPart of shipParts) {
-      shipPart.style.removeProperty("transform");
-      shipPart.classList.remove("invalid");
+      // Update the ship's position in the logical game board
+      gameboard.moveShip(shipId, startRow, startCol, isHorizontal);
+    } else {
+      // Remove the invalid styles when the ship can't be placed
+      shipSegments.forEach((segment, index) => {
+        let newRow = isHorizontal ? startRow : startRow + index;
+        let newCol = isHorizontal ? startCol + index : startCol;
+        const cell = document.querySelector(
+          `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
+        );
+        if (cell) {
+          cell.classList.remove("invalid");
+          const shipPart = cell.querySelector(".ship");
+          if (shipPart) shipPart.classList.remove("hide");
+        }
+      });
+
+      // Since the ship gets removed form the logical game board on 'mouseDown',
+      // It needs to be re-added back even if the position didn't change.
+      gameboard.moveShip(
+        shipInfo.shipId,
+        initialRow,
+        initialCol,
+        shipInfo.isHorizontal,
+      );
+
+      // Revert the orientation flag if the ship was rotated but the
+      // placement area was invalid.
+      shipSegments.forEach(
+        (segment) => (segment.dataset.isRow = shipInfo.isHorizontal),
+      );
     }
-    // Update the ship's position in the logical game board
-    gameboard.moveShip(shipId, startRow, startCol, isHorizontal);
-    //}
-    console.log(gameboard.board);
-    console.log(gameboard.ships);
-    for (let shipPart of shipParts) {
-      shipPart.classList.remove("hover");
+
+    // Remove all visual indicators
+    for (let segment of shipSegments) {
+      segment.style.removeProperty("transform");
+      segment.classList.remove("invalid", "hover");
     }
+
     document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("keydown", onKeyDown);
     document.removeEventListener("mouseup", onMouseUp);
   }
 
