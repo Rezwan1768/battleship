@@ -1,13 +1,21 @@
 import { createElement } from "./utils.js";
 import { onMouseDown } from "./shipMouseDown.js";
 
-export function placePlayerShips(player) {
+export function clearShipElements(boardElement) {
+  const shipSegments = boardElement.querySelectorAll(".ship");
+  shipSegments.forEach((segment) => {
+    segment.remove();
+  });
+}
+
+export function renderShips(player, boardElement) {
   for (let shipId = 0; shipId < player.ships.length; ++shipId) {
-    placeShip(player.ships[shipId], shipId, player.gameboard);
+    const ship = player.ships[shipId];
+    placeShip(ship, shipId, player.gameboard, boardElement);
   }
 }
 
-function placeShip(ship, id, gameboard) {
+function placeShip(ship, id, gameboard, boardElement) {
   let rowEnd = ship.isHorizontal
     ? ship.rowStart
     : ship.rowStart + ship.size - 1;
@@ -30,7 +38,7 @@ function placeShip(ship, id, gameboard) {
       });
 
       shipElem.addEventListener("mousedown", onMouseDown(gameboard));
-      const cell = document.querySelector(
+      const cell = boardElement.querySelector(
         `[data-row="${row}"][data-col="${col}"]`,
       );
 

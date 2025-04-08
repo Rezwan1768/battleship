@@ -10,6 +10,7 @@ import {
 export class Gameboard {
   #board;
   #boardSize = 10;
+  #isBoardEmpty = true;
   constructor() {
     // 10x10 board initialized with null values
     this.#board = Array.from({ length: this.#boardSize }, () =>
@@ -29,12 +30,6 @@ export class Gameboard {
     return this.#boardSize;
   }
 
-  clearBoard() {
-    this.#board = Array.from({ length: this.#boardSize }, () =>
-      Array(this.#boardSize).fill(null),
-    );
-  }
-
   canPlaceShip(rowStart, colStart, shipSize, isHorizontal) {
     return this.shipManager.canPlaceShipOnBoard(
       rowStart,
@@ -46,7 +41,18 @@ export class Gameboard {
   }
 
   placeShips() {
-    this.shipManager.placeAllShipsOnBoard(this.#board);
+    if (this.#isBoardEmpty) {
+      this.shipManager.placeAllShipsOnBoard(this.#board);
+      this.#isBoardEmpty = false;
+    }
+  }
+
+  clearBoard() {
+    this.#board = Array.from({ length: this.#boardSize }, () =>
+      Array(this.#boardSize).fill(null),
+    );
+    this.ships.length = 0;
+    this.#isBoardEmpty = true;
   }
 
   removeShip(ship) {
