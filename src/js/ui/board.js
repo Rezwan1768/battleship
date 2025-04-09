@@ -1,4 +1,4 @@
-import { createElement } from "./utils.js";
+import { createElement } from "./utils/utils.js";
 import "../../styles/board.css";
 
 export function createBoard(player) {

@@ -1,5 +1,3 @@
-import { renderShips, clearShipElements } from "./ship.js";
-
 export function createElement({
   element,
   content = "",
@@ -47,16 +45,4 @@ export function getShipInfo(shipSegment) {
     shipSize: Number(shipSegment.dataset.size),
     isHorizontal: shipSegment.dataset.isRow === "true",
   };
-}
-
-// Place the ships on both logical and UI board
-export function placeShipsOnBoard(player, boardElement) {
-  player.gameboard.placeShips();
-  renderShips(player, boardElement);
-}
-
-// Remove ships form both logical nad UI board
-export function clearShipsFormBoard(player, boardElement) {
-  player.gameboard.clearBoard();
-  clearShipElements(boardElement);
 }

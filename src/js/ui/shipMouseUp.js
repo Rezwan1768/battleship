@@ -1,21 +1,26 @@
-import { getShipInfo, getStartingCell } from "./utils.js";
-
+import { getShipInfo, getStartingCell } from "./utils/utils.js";
+import { clearElementListClasses } from "./utils/domUtils.js";
 export function mouseUpHandler(
   gameboard,
+  boardElement,
   shipSegments,
   shipInfo,
   initialRow,
   initialCol,
+  ghostCells,
+  hiddenShipSegments,
   onKeyDown,
   onMouseMove,
 ) {
   function onMouseUp(event) {
-    // Get updated information about the ship
-    const updatedShipInfo = getShipInfo(event.target);
+    // When the dragged ship overlaps another ship, event.target might refer to the overlapped ship.
+    // In that case, ignore the new target and keep using the original ship's info.
+    let updatedShipInfo = getShipInfo(event.target);
+    if (!event.target.matches(`.ship[data-id="${shipInfo.shipId}"`))
+      updatedShipInfo = shipInfo;
     const { shipId, shipSize, isHorizontal } = updatedShipInfo;
-    const boardBox = document
-      .querySelector(".board.player")
-      .getBoundingClientRect();
+
+    const boardBox = boardElement.getBoundingClientRect();
     const segmentSize = boardBox.width / gameboard.boardSize;
 
     // Determine the cell where the first segment of the ship will be placed
@@ -31,8 +36,8 @@ export function mouseUpHandler(
       shipSegments.forEach((segment, index) => {
         let newRow = isHorizontal ? startRow : startRow + index;
         let newCol = isHorizontal ? startCol + index : startCol;
-        const newParent = document.querySelector(
-          `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
+        const newParent = boardElement.querySelector(
+          `.cell[data-row="${newRow}"][data-col="${newCol}"]`,
         );
         if (newParent) {
           newParent.classList.remove("valid");
@@ -44,19 +49,19 @@ export function mouseUpHandler(
       // Update the ship's position in the logical game board
       gameboard.moveShip(shipId, startRow, startCol, isHorizontal);
     } else {
-      // Remove the invalid styles when the ship can't be placed
-      shipSegments.forEach((segment, index) => {
-        let newRow = isHorizontal ? startRow : startRow + index;
-        let newCol = isHorizontal ? startCol + index : startCol;
-        const cell = document.querySelector(
-          `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
-        );
-        if (cell) {
-          cell.classList.remove("invalid");
-          const shipPart = cell.querySelector(".ship");
-          if (shipPart) shipPart.classList.remove("hide");
-        }
-      });
+      // // Remove the invalid styles when the ship can't be placed
+      // shipSegments.forEach((segment, index) => {
+      //   let newRow = isHorizontal ? startRow : startRow + index;
+      //   let newCol = isHorizontal ? startCol + index : startCol;
+      //   const cell = boardElement.querySelector(
+      //     `.cell[data-row="${newRow}"][data-col="${newCol}"]`,
+      //   );
+      //   if (cell) {
+      //     cell.classList.remove("invalid");
+      //     const shipPart = cell.querySelector(".ship");
+      //     if (shipPart) shipPart.classList.remove("hide");
+      //   }
+      // });
 
       // Since the ship gets removed form the logical game board on 'mouseDown',
       // It needs to be re-added back even if the position didn't change.
@@ -79,9 +84,11 @@ export function mouseUpHandler(
       segment.style.removeProperty("transform");
       segment.classList.remove("invalid", "hover");
     }
+    clearElementListClasses(ghostCells, ["valid", "invalid"]);
+    clearElementListClasses(hiddenShipSegments, ["hide"]);
 
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("keydown", onKeyDown);
+    boardElement.removeEventListener("mousemove", onMouseMove);
+    boardElement.removeEventListener("keydown", onKeyDown);
     document.removeEventListener("mouseup", onMouseUp);
   }
 

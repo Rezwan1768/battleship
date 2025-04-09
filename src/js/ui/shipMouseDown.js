@@ -1,19 +1,18 @@
 import { mouseMoveHandler } from "./shipMouseMove.js";
 import { mouseUpHandler } from "./shipMouseUp.js";
-import { getShipInfo, getStartingCell } from "./utils.js";
+import { getShipInfo, getStartingCell } from "./utils/utils.js";
+import { updateShipVisuals } from "./utils/domUtils.js";
 import { enableRotation } from "./shipRotation.js";
 
-export function onMouseDown(gameboard) {
+export function onMouseDown(gameboard, boardElement) {
   return (event) => {
     const shipSegment = event.target;
     const shipInfo = getShipInfo(shipSegment);
-    const boardBox = document
-      .querySelector(".board.player")
-      .getBoundingClientRect();
+    const boardBox = boardElement.getBoundingClientRect();
     const segmentSize = boardBox.width / gameboard.boardSize;
 
     // Get the individual segments of the ship
-    const shipSegments = document.querySelectorAll(
+    const shipSegments = boardElement.querySelectorAll(
       `.ship[data-id="${shipInfo.shipId}"]`,
     );
     for (let segment of shipSegments) {
@@ -32,19 +31,20 @@ export function onMouseDown(gameboard) {
       segmentSize,
     );
 
-    // Tracks cells under the hovering ship for ghost effects
-    let currentGhostCells = [];
-    for (let index = 0; index < shipInfo.shipSize; ++index) {
-      let newRow = shipInfo.isHorizontal ? initialRow : initialRow + index;
-      let newCol = shipInfo.isHorizontal ? initialCol + index : initialCol;
-      const cell = document.querySelector(
-        `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
-      );
-      if (cell) {
-        cell.classList.add("valid");
-        currentGhostCells.push(cell);
-      }
-    }
+    // Hide segments when a hovered ship is above it
+    let hiddenShipSegments = [];
+    // Since the ship becomes invisible when clicked,
+    // highlight the cells where the ship is
+    let ghostCells = [];
+    updateShipVisuals({
+      boardElement,
+      startRow: initialRow,
+      startCol: initialCol,
+      shipSize: shipInfo.shipSize,
+      isHorizontal: shipInfo.isHorizontal,
+      isValid: true,
+      ghostCells,
+    });
 
     // Remove the ship from the logical game board (not the UI)
     // This prevents conflicts when checking if the new position is valid
@@ -52,30 +52,37 @@ export function onMouseDown(gameboard) {
 
     const onMouseMove = mouseMoveHandler(
       gameboard,
+      boardElement,
       shipSegments,
-      shipSegment,
-      currentGhostCells,
+      shipInfo,
+      ghostCells,
+      hiddenShipSegments,
       startX,
       startY,
     );
     const onKeyDown = enableRotation(
+      gameboard,
+      boardElement,
       shipSegments,
       shipSegment,
-      gameboard,
-      currentGhostCells,
+      ghostCells,
+      hiddenShipSegments,
     );
     const onMouseUp = mouseUpHandler(
       gameboard,
+      boardElement,
       shipSegments,
       shipInfo,
       initialRow,
       initialCol,
+      ghostCells,
+      hiddenShipSegments,
       onKeyDown,
       onMouseMove,
     );
 
-    document.addEventListener("keydown", onKeyDown);
-    document.addEventListener("mousemove", onMouseMove);
+    boardElement.addEventListener("keydown", onKeyDown);
+    boardElement.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
   };
 }

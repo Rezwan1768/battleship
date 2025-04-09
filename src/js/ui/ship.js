@@ -1,4 +1,4 @@
-import { createElement } from "./utils.js";
+import { createElement } from "./utils/utils.js";
 import { onMouseDown } from "./shipMouseDown.js";
 
 export function clearShipElements(boardElement) {
@@ -37,7 +37,10 @@ function placeShip(ship, id, gameboard, boardElement) {
         },
       });
 
-      shipElem.addEventListener("mousedown", onMouseDown(gameboard));
+      shipElem.addEventListener(
+        "mousedown",
+        onMouseDown(gameboard, boardElement),
+      );
       const cell = boardElement.querySelector(
         `[data-row="${row}"][data-col="${col}"]`,
       );

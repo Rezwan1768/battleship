@@ -1,14 +1,20 @@
-import { getShipInfo, getStartingCell } from "./utils.js";
+import { getShipInfo, getStartingCell } from "./utils/utils.js";
+import {
+  clearElementListClasses,
+  updateShipVisuals,
+} from "./utils/domUtils.js";
 
 let mouseMoveListenerAdded = false;
 let lastMouseX = 0;
 let lastMouseY = 0;
 
 export function enableRotation(
+  gameboard,
+  boardElement,
   shipSegments,
   target,
-  gameboard,
-  currentGhostCells,
+  ghostCells,
+  hiddenShipSegments,
 ) {
   // Get the mouse location
   if (!mouseMoveListenerAdded) {
@@ -28,16 +34,12 @@ export function enableRotation(
         segment.dataset.isRow = !isRow;
       });
 
-      currentGhostCells.forEach((cell) =>
-        cell.classList.remove("valid", "invalid"),
-      );
-      currentGhostCells.length = 0;
+      clearElementListClasses(ghostCells, ["valid", "invalid"]);
+      clearElementListClasses(hiddenShipSegments, ["hide"]);
 
       const shipInfo = getShipInfo(target);
       const { shipSize, isHorizontal } = shipInfo;
-      const boardBox = document
-        .querySelector(".board.player")
-        .getBoundingClientRect();
+      const boardBox = boardElement.getBoundingClientRect();
       const segmentSize = boardBox.width / gameboard.boardSize;
 
       // Determine the  cell where the first segment of the ship will be placed
@@ -48,22 +50,28 @@ export function enableRotation(
         segmentSize,
       );
 
-      // Add the appropriate styles to the cell depending on, if it's valid or not
-      for (let index = 0; index < shipSize; ++index) {
-        let newRow = isHorizontal ? startRow : startRow + index;
-        let newCol = isHorizontal ? startCol + index : startCol;
-        const cell = document.querySelector(
-          `.board.player > .cell[data-row="${newRow}"][data-col="${newCol}"]`,
-        );
-        if (cell) {
-          if (
-            gameboard.canPlaceShip(startRow, startCol, shipSize, isHorizontal)
-          )
-            cell.classList.add("valid");
-          else cell.classList.add("invalid");
-          console.log(cell);
-          currentGhostCells.push(cell);
-        }
+      // Identify and process the cells where the ship might be placed
+      if (gameboard.canPlaceShip(startRow, startCol, shipSize, isHorizontal)) {
+        updateShipVisuals({
+          boardElement,
+          startRow,
+          startCol,
+          shipSize,
+          isHorizontal,
+          isValid: true,
+          ghostCells,
+        });
+      } else {
+        updateShipVisuals({
+          boardElement,
+          startRow,
+          startCol,
+          shipSize,
+          isHorizontal,
+          isValid: false,
+          ghostCells,
+          hiddenShipSegments,
+        });
       }
     }
   };

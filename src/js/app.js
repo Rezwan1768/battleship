@@ -15,4 +15,12 @@ export function playGame() {
   renderShips(playerOne, playerOneBoard);
   const randomizeShipBtn = getRandomizeShipsBtn(playerOne, playerOneBoard);
   playerContainer.appendChild(randomizeShipBtn);
+
+  const playerTwo = new Player();
+  console.log(playerTwo.gameboard.board);
+  let playerTwoBoard = createBoard(playerTwo);
+  renderShips(playerTwo, playerTwoBoard);
+  const randomizeShipBtn2 = getRandomizeShipsBtn(playerTwo, playerTwoBoard);
+  document.body.appendChild(playerTwoBoard);
+  document.body.appendChild(randomizeShipBtn2);
 }

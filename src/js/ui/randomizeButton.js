@@ -1,5 +1,5 @@
-import { createElement } from "./utils.js";
-import { placeShipsOnBoard, clearShipsFormBoard } from "./utils.js";
+import { createElement } from "./utils/utils.js";
+import { placeShipsOnBoard, clearShipsFormBoard } from "./utils/domUtils.js";
 
 export function getRandomizeShipsBtn(player, boardElement) {
   const button = createElement({
