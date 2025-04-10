@@ -17,8 +17,8 @@ export function isShipOutOfBounds(
   const { shipSize, isHorizontal, segmentNumber } = shipInfo;
   const boardBox = boardElement.getBoundingClientRect();
   const padding = segmentSize * shipSegments.length;
-  const paddingX = isHorizontal ? padding : 0;
-  const paddingY = isHorizontal ? 0 : padding;
+  const paddingX = isHorizontal ? padding : segmentSize;
+  const paddingY = isHorizontal ? segmentSize : padding;
 
   // Get the mouse position in the viewport
   const mouseX = eventObj.clientX;

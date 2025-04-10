@@ -1,5 +1,6 @@
-import { createElement } from "./utils/utils.js";
+import { createElement, isDirectInstanceOf } from "./utils/utils.js";
 import { onMouseDown } from "./shipMouseDown.js";
+import { Player } from "../models/player.js";
 
 export function clearShipElements(boardElement) {
   const shipSegments = boardElement.querySelectorAll(".ship");
@@ -9,13 +10,14 @@ export function clearShipElements(boardElement) {
 }
 
 export function renderShips(player, boardElement) {
+  const isHumanPlayer = isDirectInstanceOf(player, Player);
   for (let shipId = 0; shipId < player.ships.length; ++shipId) {
     const ship = player.ships[shipId];
-    placeShip(ship, shipId, player.gameboard, boardElement);
+    placeShip(ship, shipId, player.gameboard, boardElement, isHumanPlayer);
   }
 }
 
-function placeShip(ship, id, gameboard, boardElement) {
+function placeShip(ship, id, gameboard, boardElement, humanPlayer) {
   let rowEnd = ship.isHorizontal
     ? ship.rowStart
     : ship.rowStart + ship.size - 1;
@@ -37,10 +39,12 @@ function placeShip(ship, id, gameboard, boardElement) {
         },
       });
 
-      shipElem.addEventListener(
-        "mousedown",
-        onMouseDown(gameboard, boardElement),
-      );
+      if (humanPlayer) {
+        shipElem.addEventListener(
+          "mousedown",
+          onMouseDown(gameboard, boardElement),
+        );
+      }
       const cell = boardElement.querySelector(
         `[data-row="${row}"][data-col="${col}"]`,
       );

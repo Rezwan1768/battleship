@@ -5,6 +5,7 @@ export function getRandomizeShipsBtn(player, boardElement) {
   const button = createElement({
     element: "button",
     content: "Reposition Ships",
+    classes: ["reposition-ship"],
   });
 
   button.addEventListener("click", () => {

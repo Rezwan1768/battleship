@@ -17,6 +17,10 @@ export function createElement({
   return elem;
 }
 
+export function isDirectInstanceOf(obj, constructor) {
+  return Object.getPrototypeOf(obj)?.constructor === constructor;
+}
+
 // Returns the adjusted starting cell (row, column) where the ship's
 // first segment will be placed
 export function getStartingCell(mouseCoord, boardBox, shipInfo, partSize) {

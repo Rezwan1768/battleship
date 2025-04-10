@@ -1,4 +1,4 @@
-import "./styles/styles.css";
+import "./styles/index.css";
 
 import { playGame } from "./js/app.js";
 

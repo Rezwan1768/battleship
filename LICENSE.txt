@@ -1,0 +1,12 @@
+# Font License
+The project uses the Orbitron font, which is licensed under the SIL Open Font License, Version 1.1.
+
+SIL Open Font License v1.1
+--------------------------
+This license can also be found at: https://www.fontsquirrel.com/license/Orbitron
+
+Copyright (c) 2009, Matt McInerney (<http://pixelspread.com|matt@pixelspread.com>),
+with Reserved Font Name Orbitron.
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at: http://scripts.sil.org/OFL

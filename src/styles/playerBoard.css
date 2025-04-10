@@ -1,0 +1,34 @@
+.board-container.player p {
+  color: rgb(63, 215, 16);
+}
+
+.board.player .ship {
+  cursor: pointer;
+}
+
+.cell.valid {
+  background-color: rgba(0, 255, 0, 0.5);
+}
+
+.cell.invalid {
+  background-color: #fe422d;
+}
+
+.ship.hover {
+  background-color: blue;
+  opacity: 0;
+}
+
+.ship.invalid {
+  background-color: red;
+  z-index: 1;
+}
+
+button.reposition-ship {
+  background-color: #11d311;
+  color: white;
+  padding: 5px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  cursor: pointer;
+}

@@ -1,10 +1,33 @@
+.game-container {
+  width: 80%;
+  margin: 10px auto;
+  display: flex;
+  flex-direction: row;
+  gap: 20%;
+}
+
+.board-container {
+  width: 100%;
+  max-width: 450px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.board-container p {
+  font-family: "orbitron-md", sans-serif;
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
 .board {
+  width: 100%;
+  aspect-ratio: 1 / 1;
   display: grid;
   grid-template-rows: repeat(10, 1fr);
   grid-template-columns: repeat(10, 1fr);
-  width: 450px;
-  height: 450px;
-  /* margin-left: 100px; */
 }
 
 .board > .cell {
@@ -13,36 +36,12 @@
   outline: none;
 }
 
-.cell.valid {
-  background-color: rgba(0, 255, 0, 0.5);
-  /* Light green highlight */
-}
-
-.cell.invalid {
-  background-color: red;
-}
-
-.cell.ghost {
-  background-color: rgba(0, 255, 0, 0.5);
-  /* Light green highlight */
-}
-
 .cell > .ship {
-  background-color: rgb(63, 215, 16);
+  background-color: #11d311;
   width: 100%;
   height: 100%;
 }
 
 .ship.hide {
   opacity: 0;
-}
-
-.ship.hover {
-  background-color: blue;
-  opacity: 0;
-}
-
-.ship.invalid {
-  background-color: red;
-  z-index: 1;
 }

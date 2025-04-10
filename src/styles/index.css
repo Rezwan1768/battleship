@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "orbitron-md";
+  src:
+    url("../assets/orbitron-md.woff2") format("woff2"),
+    url("../assets/orbitron-md.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@import url(./base.css);
+@import url(./board.css);
+@import url(./playerBoard.css);
+@import url(./computerBoard.css);
