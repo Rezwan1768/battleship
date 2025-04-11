@@ -28,6 +28,7 @@ button.reposition-ship {
   background-color: #11d311;
   color: white;
   padding: 5px;
+  border-radius: 5px;
   font-weight: bold;
   font-size: 1.2rem;
   cursor: pointer;

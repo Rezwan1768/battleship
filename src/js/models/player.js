@@ -13,12 +13,11 @@ export class Player {
   }
 
   attack(opponentBoard, x, y) {
-    console.log(x, y);
-    const { markedCells } = opponentBoard.receiveAttack(x, y);
-    return markedCells;
+    const { markedCells, isHit } = opponentBoard.receiveAttack(x, y);
+    return { markedCells, isHit };
   }
 
-  isGameOver() {
+  isGameLost() {
     return this.gameboard.areAllShipSunk();
   }
 }

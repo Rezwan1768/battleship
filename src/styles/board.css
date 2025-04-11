@@ -9,6 +9,7 @@
 .board-container {
   width: 100%;
   max-width: 450px;
+  min-width: 300px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -44,4 +45,49 @@
 
 .ship.hide {
   opacity: 0;
+}
+
+.ship.hit,
+.cell.mark,
+.cell.miss {
+  font-weight: bold;
+  text-align: center;
+  font-size: clamp(0.8rem, 2vw, 2rem);
+}
+
+.ship.hit {
+  background-color: rgb(149, 34, 34);
+}
+
+.cell.miss {
+  color: rgb(149, 34, 34);
+}
+
+.cell:disabled {
+  background-color: rgb(109, 125, 130);
+  opacity: 1;
+  cursor: not-allowed;
+  color: rgb(34, 22, 22);
+}
+
+.board .cell:disabled:hover {
+  background-color: rgb(109, 125, 130);
+  cursor: not-allowed;
+}
+
+.cell.miss:disabled {
+  color: #ff6f61;
+}
+
+button.start-game {
+  align-self: center;
+  width: fit-content;
+  padding: 0.5rem 1rem; /* optional: adds space around text */
+  white-space: nowrap;
+  border-radius: 18px;
+  font-family: "orbitron-md", sans-serif;
+  font-size: clamp(1rem, 1.5vw, 1.8rem);
+  font-weight: bold;
+  background-color: #11d311;
+  cursor: pointer;
 }

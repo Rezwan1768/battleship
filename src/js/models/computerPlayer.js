@@ -20,6 +20,7 @@ export class ComputerPlayer extends Player {
   }
 
   attack(opponentBoard) {
+    if (this.validCellsToAttack.size === 0) return;
     let attackCoord = null;
     // attack in a straight line when two adjacent cells of a ship has been hit
     if (this.attackedShipCells.length >= 2)
@@ -27,7 +28,6 @@ export class ComputerPlayer extends Player {
     else if (this.adjacentTargets.length > 0)
       attackCoord = this.getAdjacentCoord();
     else attackCoord = this.getRandomCoord();
-    console.log(...attackCoord);
     const {
       markedCells,
       isHit,
@@ -53,7 +53,7 @@ export class ComputerPlayer extends Player {
       this.switchDirection = false;
     }
 
-    return markedCells;
+    return { markedCells, isHit };
   }
 
   // Attack the same row/column of the hit ship, until the ship is sunk
@@ -105,6 +105,7 @@ export class ComputerPlayer extends Player {
   }
 
   getRandomCoord() {
+    if (this.validCellsToAttack.size === 0) return;
     let values = Array.from(this.validCellsToAttack);
     let randomIndex = getRandomIndex(values.length);
     return values[randomIndex].split(",").map(Number);

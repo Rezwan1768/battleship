@@ -17,6 +17,7 @@ export function getBoardSetupElements(isHumanPlayer) {
   const playerBoard = getBoardElement(player);
 
   const boardSetupElements = {
+    player,
     boardLabel,
     playerBoard,
   };
@@ -27,7 +28,6 @@ export function getBoardSetupElements(isHumanPlayer) {
       playerBoard,
     );
 
-  console.log(boardSetupElements);
   return boardSetupElements;
 }
 
