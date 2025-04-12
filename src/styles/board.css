@@ -3,13 +3,15 @@
   margin: 10px auto;
   display: flex;
   flex-direction: row;
-  gap: 20%;
+  align-items: center;
+  justify-content: center;
+  gap: max(20px, 10vw);
 }
 
 .board-container {
-  width: 100%;
+  width: min(80vw, 100%);
   max-width: 450px;
-  min-width: 300px;
+  min-width: 250px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -20,7 +22,7 @@
 .board-container p {
   font-family: "orbitron-md", sans-serif;
   font-weight: bold;
-  font-size: 1.3rem;
+  font-size: clamp(1rem, 1.5vw, 1.8rem);
 }
 
 .board {
@@ -52,7 +54,7 @@
 .cell.miss {
   font-weight: bold;
   text-align: center;
-  font-size: clamp(0.8rem, 2vw, 2rem);
+  font-size: clamp(1rem, 2vw, 2rem);
 }
 
 .ship.hit {
@@ -70,11 +72,6 @@
   color: rgb(34, 22, 22);
 }
 
-.board .cell:disabled:hover {
-  background-color: rgb(109, 125, 130);
-  cursor: not-allowed;
-}
-
 .cell.miss:disabled {
   color: #ff6f61;
 }
@@ -82,12 +79,46 @@
 button.start-game {
   align-self: center;
   width: fit-content;
-  padding: 0.5rem 1rem; /* optional: adds space around text */
+  padding: 0.5rem 1rem;
   white-space: nowrap;
   border-radius: 18px;
   font-family: "orbitron-md", sans-serif;
-  font-size: clamp(1rem, 1.5vw, 1.8rem);
+  font-size: clamp(1rem, 2vw, 2rem);
   font-weight: bold;
   background-color: #11d311;
   cursor: pointer;
+}
+
+.start-game.hidden {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .game-container {
+    width: 90%;
+    gap: max(20px, 5vw);
+  }
+}
+
+@media (max-width: 768px) {
+  .game-container {
+    margin: 5px auto;
+    width: 96%;
+    gap: max(20px, 2vw);
+  }
+}
+
+@media (max-width: 550px) {
+  .game-container {
+    flex-direction: column;
+    gap: clamp(24px, 8vw, 40px);
+    width: 98%;
+    margin: 0 auto;
+  }
+
+  .ship.hit,
+  .cell.mark,
+  .cell.miss {
+    font-size: clamp(25px, 4vh, 2rem);
+  }
 }

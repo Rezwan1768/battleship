@@ -37,15 +37,17 @@ function startGame(player, computer, playerBoard, computerBoard) {
   let playerTurn = Math.random() < 0.5;
 
   function handlePlayerAttack(event) {
-    if (!playerTurn || winner) return;
-
-    computerBoard.classList.add("disabled");
+    if (!playerTurn || winner || computerBoard.classList.contains("disabled"))
+      return;
 
     const cell = event.target.closest(".cell");
     if (!cell || !computerBoard.contains(cell)) return;
 
+    computerBoard.classList.add("disabled");
+
     const row = Number(cell.dataset.row);
     const col = Number(cell.dataset.col);
+    console.log(row, col);
     const { markedCells, isHit } = player.attack(computer.gameboard, row, col);
     renderAttackResult(computerBoard, markedCells, isHit);
 
@@ -54,10 +56,10 @@ function startGame(player, computer, playerBoard, computerBoard) {
       console.log("You Win");
       return;
     }
-
     playerTurn = false;
 
-    setTimeout(handleComputerAttack, 5000);
+    const waitTime = (Math.random() * 100 + 50) * 10; // Between .5s and 1.5s
+    setTimeout(handleComputerAttack, waitTime);
   }
 
   function handleComputerAttack() {
@@ -77,6 +79,10 @@ function startGame(player, computer, playerBoard, computerBoard) {
   }
 
   return () => {
+    document.querySelector("button.start-game").classList.add("hidden");
+    document.querySelector("button.reposition-ship").classList.add("hidden");
+    computerBoard.closest(".board-container").classList.remove("hidden");
+
     if (!playerTurn) {
       setTimeout(handleComputerAttack, 500);
     }

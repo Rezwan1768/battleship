@@ -1,3 +1,7 @@
+.board-container.hidden {
+  display: none;
+}
+
 .board-container.computer p {
   color: #ff6f61;
 }
@@ -6,13 +10,14 @@
   cursor: pointer;
 }
 
-.computer .cell:hover {
-  background-color: red;
-}
-
-.board.computer:not(.disabled) .cell:hover {
+.board:not(.disabled) .cell:hover {
   background-color: red;
   cursor: pointer;
+}
+
+.board .cell:disabled:hover {
+  background-color: rgb(109, 125, 130);
+  cursor: not-allowed;
 }
 
 .board.computer.disabled {

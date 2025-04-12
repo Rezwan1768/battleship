@@ -30,6 +30,10 @@ button.reposition-ship {
   padding: 5px;
   border-radius: 5px;
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: clamp(0.8rem, 1.2vw, 1.2rem);
   cursor: pointer;
+}
+
+.reposition-ship.hidden {
+  display: none;
 }
