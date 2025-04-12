@@ -10,7 +10,7 @@
   cursor: pointer;
 }
 
-.board:not(.disabled) .cell:hover {
+.board.computer:not(.disabled) .cell:hover {
   background-color: red;
   cursor: pointer;
 }

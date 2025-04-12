@@ -53,21 +53,23 @@ function startGame(player, computer, playerBoard, computerBoard) {
 
     if (computer.isGameLost()) {
       winner = "Player";
-      console.log("You Win");
+      showModal("You Win!");
       return;
     }
     playerTurn = false;
 
     const waitTime = (Math.random() * 100 + 50) * 10; // Between .5s and 1.5s
+    console.log(waitTime);
     setTimeout(handleComputerAttack, waitTime);
   }
 
   function handleComputerAttack() {
     const { markedCells, isHit } = computer.attack(player.gameboard);
     renderAttackResult(playerBoard, markedCells, isHit);
+    // showModal("You Lose!", player, computer, playerBoard, computerBoard)
     if (player.isGameLost()) {
       winner = "Computer";
-      console.log("You lose");
+      showModal("You Lose!");
       return;
     }
 
@@ -81,6 +83,7 @@ function startGame(player, computer, playerBoard, computerBoard) {
   return () => {
     document.querySelector("button.start-game").classList.add("hidden");
     document.querySelector("button.reposition-ship").classList.add("hidden");
+    playerBoard.classList.add("disabled");
     computerBoard.closest(".board-container").classList.remove("hidden");
 
     if (!playerTurn) {
@@ -89,4 +92,21 @@ function startGame(player, computer, playerBoard, computerBoard) {
 
     computerBoard.addEventListener("click", handlePlayerAttack);
   };
+}
+
+function showModal(text) {
+  const dialog = document.querySelector("dialog");
+  dialog.querySelector("p").textContent = text;
+  const okBtn = dialog.querySelector("button");
+  okBtn.addEventListener("click", () => {
+    const gameContainer = document.querySelector(".game-container");
+    gameContainer.innerHTML = `
+    <div class="board-container player"></div>
+    <div class="board-container computer hidden"></div>
+    <button class="start-game">Start Game</button>
+  `;
+    dialog.close();
+    playGame();
+  });
+  dialog.showModal();
 }
