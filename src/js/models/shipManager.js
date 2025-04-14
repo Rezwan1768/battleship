@@ -2,7 +2,7 @@ import { isCellInBounds } from "./utils.js";
 import { Ship } from "./ship.js";
 
 export class ShipManager {
-  constructor(boardSize = 10, shipsSizes = [6, 3, 2, 2, 1, 1, 1]) {
+  constructor(boardSize = 10, shipsSizes = [4, 3, 3, 2, 2, 1, 1]) {
     this.boardSize = boardSize;
     this.shipSizes = shipsSizes; // Size of the ships to be placed on the board
     this.numberOfShips = this.shipSizes.length;
@@ -48,7 +48,6 @@ export class ShipManager {
   }
 
   placeAllShipsOnBoard(board) {
-    console.log(this.ships);
     for (let shipSize of this.shipSizes) {
       let isShipPlaced = false;
 

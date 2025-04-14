@@ -1,5 +1,8 @@
-import { createElement } from "./utils/utils.js";
-import { placeShipsOnBoard, clearShipsFormBoard } from "./utils/domUtils.js";
+import {
+  createElement,
+  placeShipsOnBoard,
+  clearShipsFromBoard,
+} from "./utils.js";
 
 export function getRandomizeShipsBtn(player, boardElement) {
   const button = createElement({
@@ -9,9 +12,8 @@ export function getRandomizeShipsBtn(player, boardElement) {
   });
 
   button.addEventListener("click", () => {
-    clearShipsFormBoard(player, boardElement);
+    clearShipsFromBoard(player, boardElement);
     placeShipsOnBoard(player, boardElement);
-    console.log(player.gameboard.board);
   });
   return button;
 }

@@ -1,5 +1,4 @@
 import "./styles/index.css";
+import { initializeGameUI } from "./js/game/initializeGameUI.js";
 
-import { playGame } from "./js/app.js";
-
-playGame();
+initializeGameUI();

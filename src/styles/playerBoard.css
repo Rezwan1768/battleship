@@ -22,6 +22,7 @@
 .ship.hover {
   background-color: blue;
   opacity: 0;
+  /* display: none; */
 }
 
 .ship.invalid {

@@ -1,7 +1,8 @@
-import { createElement, isDirectInstanceOf } from "./utils/utils.js";
-import { onMouseDown } from "./shipMouseDown.js";
+import { createElement, isDirectInstanceOf } from "./utils.js";
+import { onMouseDown } from "./shipInteractions/initShipDrag.js";
 import { Player } from "../models/player.js";
 
+// Remove all existing ship elements from the board
 export function clearShipElements(boardElement) {
   const shipSegments = boardElement.querySelectorAll(".ship");
   shipSegments.forEach((segment) => {
@@ -9,42 +10,44 @@ export function clearShipElements(boardElement) {
   });
 }
 
+// Render all ships for a given player onto the board
 export function renderShips(player, boardElement) {
   const isHumanPlayer = isDirectInstanceOf(player, Player);
+
+  // Loop through each ship and place it on the board
   for (let shipId = 0; shipId < player.ships.length; ++shipId) {
     const ship = player.ships[shipId];
     placeShip(ship, shipId, player.gameboard, boardElement, isHumanPlayer);
   }
 }
 
+// Place a single ship on the board at its designated position
 function placeShip(ship, id, gameboard, boardElement, humanPlayer) {
-  let rowEnd = ship.isHorizontal
-    ? ship.rowStart
-    : ship.rowStart + ship.size - 1;
-  let colEnd = ship.isHorizontal
-    ? ship.colStart + ship.size - 1
-    : ship.colStart;
+  // Index of the current ship segment, used to track individual parts
+  let shipSegmentNum = 0;
 
-  let shipPieceNum = 0;
-  for (let row = ship.rowStart; row <= rowEnd; ++row) {
-    for (let col = ship.colStart; col <= colEnd; ++col) {
+  for (let row = ship.rowStart; row <= ship.rowEnd; ++row) {
+    for (let col = ship.colStart; col <= ship.colEnd; ++col) {
       const shipElem = createElement({
         element: "div",
         classes: ["ship"],
+        // Attributes for identifying and interacting with the ship segment
         attributes: {
           "data-id": id,
           "data-size": ship.size,
           "data-is-row": ship.isHorizontal,
-          "data-piece-number": shipPieceNum++,
+          "data-piece-number": shipSegmentNum++,
         },
       });
 
+      // Allow ships on human player's board to be draggable
       if (humanPlayer) {
         shipElem.addEventListener(
           "mousedown",
           onMouseDown(gameboard, boardElement),
         );
       }
+
       const cell = boardElement.querySelector(
         `[data-row="${row}"][data-col="${col}"]`,
       );

@@ -1,12 +1,18 @@
 import { mouseMoveHandler } from "./shipMouseMove.js";
 import { mouseUpHandler } from "./shipMouseUp.js";
-import { getShipInfo, getStartingCell } from "./utils/utils.js";
-import { updateShipVisuals } from "./utils/domUtils.js";
 import { enableRotation } from "./shipRotation.js";
+import { getShipInfo, getStartingCell, updateShipVisuals } from "./utils.js";
 
 export function onMouseDown(gameboard, boardElement) {
   return (event) => {
     const shipSegment = event.target;
+    if (!shipSegment.classList.contains("ship")) return;
+
+    // Make the board focusable and focus it
+    // to capture keyboard input (e.g., for ship rotation)
+    boardElement.focus();
+    boardElement.setAttribute("tabindex", "0");
+
     const shipInfo = getShipInfo(shipSegment);
     const boardBox = boardElement.getBoundingClientRect();
     const segmentSize = boardBox.width / gameboard.boardSize;
@@ -20,21 +26,19 @@ export function onMouseDown(gameboard, boardElement) {
     }
 
     // Store the ship/mouse position on 'mousedown'
-    let startX = event.clientX;
-    let startY = event.clientY;
+    const { clientX: startX, clientY: startY } = event;
 
-    // Get location of the first segment of the targeted ship
+    // Determine the starting cell (row, col) of the clicked ship segment
     const [initialRow, initialCol] = getStartingCell(
-      { x: event.clientX, y: event.clientY },
+      { x: startX, y: startY },
       boardBox,
       shipInfo,
       segmentSize,
     );
 
-    // Hide segments when a hovered ship is above it
+    // Store segments temporarily hidden to reveal red ghost cells beneath
     let hiddenShipSegments = [];
-    // Since the ship becomes invisible when clicked,
-    // highlight the cells where the ship is
+    // Visually highlight the original ship position as "ghost" cells
     let ghostCells = [];
     updateShipVisuals({
       boardElement,
@@ -50,16 +54,20 @@ export function onMouseDown(gameboard, boardElement) {
     // This prevents conflicts when checking if the new position is valid
     gameboard.removeShip(gameboard.ships[shipInfo.shipId]);
 
+    // Attach handler that updates ship position on drag
     const onMouseMove = mouseMoveHandler(
       gameboard,
       boardElement,
       shipSegments,
+      shipSegment,
       shipInfo,
       ghostCells,
       hiddenShipSegments,
       startX,
       startY,
     );
+
+    // Enable ship rotation with keyboard input during drag
     const onKeyDown = enableRotation(
       gameboard,
       boardElement,
@@ -68,6 +76,8 @@ export function onMouseDown(gameboard, boardElement) {
       ghostCells,
       hiddenShipSegments,
     );
+
+    // Finalize ship placement and cleanup on mouse release
     const onMouseUp = mouseUpHandler(
       gameboard,
       boardElement,
@@ -83,6 +93,6 @@ export function onMouseDown(gameboard, boardElement) {
 
     boardElement.addEventListener("keydown", onKeyDown);
     boardElement.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("mouseup", onMouseUp, { once: true });
   };
 }
