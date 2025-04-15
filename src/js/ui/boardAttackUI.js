@@ -20,12 +20,9 @@ function updateAttackedShipUI(board, attackedCell) {
   );
   if (!cell) return;
 
-  const shipSegment = cell.querySelector(".ship");
-  if (shipSegment) {
-    shipSegment.classList.add("hit");
-    shipSegment.textContent = "💥";
-  }
-
+  cell.querySelector(".ship")?.remove();
+  cell.textContent = "💥";
+  cell.classList.add("hit");
   cell.disabled = true;
 }
 

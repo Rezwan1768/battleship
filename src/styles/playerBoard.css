@@ -1,5 +1,5 @@
 .board-container.player p {
-  color: rgb(63, 215, 16);
+  color: var(--color-success);
 }
 
 .board.player.disabled {
@@ -11,35 +11,34 @@
   cursor: pointer;
 }
 
-.cell.valid {
-  background-color: rgba(0, 255, 0, 0.5);
-}
-
-.cell.invalid {
-  background-color: #fe422d;
-}
-
 .ship.hover {
   background-color: blue;
   opacity: 0;
   /* display: none; */
 }
 
-.ship.invalid {
-  background-color: red;
-  z-index: 1;
+.cell.valid {
+  background-color: var(--color-success-transparent);
 }
 
-button.reposition-ship {
-  background-color: #11d311;
-  color: white;
+.cell.invalid {
+  background-color: var(--color-alert);
+}
+
+.reposition-ship {
+  background-color: var(--color-success);
   padding: 5px;
   border-radius: 5px;
   font-weight: bold;
-  font-size: clamp(0.8rem, 1.2vw, 1.2rem);
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
   cursor: pointer;
 }
 
-.reposition-ship.hidden {
-  display: none;
+.reposition-ship:hover {
+  filter: brightness(var(--hover-brightness));
 }
+
+/* .ship.invalid {
+  background-color: red;
+  z-index: 1;
+} */

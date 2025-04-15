@@ -1,0 +1,44 @@
+.game-container {
+  width: 80%;
+  margin: 10px auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: max(20px, 10vw);
+}
+
+@media (max-width: 1024px) {
+  .game-container {
+    width: 90%;
+    gap: max(20px, 5vw);
+  }
+}
+
+@media (max-width: 768px) {
+  .game-container {
+    margin: 5px auto;
+    width: 96%;
+    gap: max(20px, 2vw);
+  }
+}
+
+@media (max-width: 550px) {
+  .game-container {
+    flex-direction: column;
+    gap: clamp(24px, 8vw, 40px);
+    width: 98%;
+    margin: 0 auto;
+  }
+}
+
+.board-container {
+  width: min(80vw, 100%);
+  max-width: 450px;
+  min-width: 250px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}

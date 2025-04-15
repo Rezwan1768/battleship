@@ -30,7 +30,7 @@ export function startGame(player, computer, playerBoard, computerBoard) {
     playerTurn = false;
 
     // Wait briefly before computer's turn to simulate thinking time
-    const waitTime = (Math.random() * 100 + 50) * 10; // Between .5s and 1.5s
+    const waitTime = (Math.random() * 100 + 50) * 10 - 500; // Between .5s and 1s
     setTimeout(handleComputerAttack, waitTime);
   }
 

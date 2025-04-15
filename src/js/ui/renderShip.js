@@ -22,7 +22,7 @@ export function renderShips(player, boardElement) {
 }
 
 // Place a single ship on the board at its designated position
-function placeShip(ship, id, gameboard, boardElement, humanPlayer) {
+function placeShip(ship, id, gameboard, boardElement, isHumanPlayer) {
   // Index of the current ship segment, used to track individual parts
   let shipSegmentNum = 0;
 
@@ -30,7 +30,7 @@ function placeShip(ship, id, gameboard, boardElement, humanPlayer) {
     for (let col = ship.colStart; col <= ship.colEnd; ++col) {
       const shipElem = createElement({
         element: "div",
-        classes: ["ship"],
+        classes: isHumanPlayer ? ["ship"] : ["ship", "hidden"],
         // Attributes for identifying and interacting with the ship segment
         attributes: {
           "data-id": id,
@@ -41,7 +41,7 @@ function placeShip(ship, id, gameboard, boardElement, humanPlayer) {
       });
 
       // Allow ships on human player's board to be draggable
-      if (humanPlayer) {
+      if (isHumanPlayer) {
         shipElem.addEventListener(
           "mousedown",
           onMouseDown(gameboard, boardElement),
