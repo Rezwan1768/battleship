@@ -11,7 +11,7 @@
 @media (max-width: 1024px) {
   .game-container {
     width: 90%;
-    gap: max(20px, 5vw);
+    /* gap: max(20px, 5vw); */
   }
 }
 
@@ -19,16 +19,16 @@
   .game-container {
     margin: 5px auto;
     width: 96%;
-    gap: max(20px, 2vw);
+    /* gap: max(20px, 2vw); */
   }
 }
 
 @media (max-width: 550px) {
   .game-container {
     flex-direction: column;
-    gap: clamp(24px, 8vw, 40px);
+    gap: 20px;
     width: 98%;
-    margin: 0 auto;
+    margin: 10px auto;
   }
 }
 
@@ -36,9 +36,24 @@
   width: min(80vw, 100%);
   max-width: 450px;
   min-width: 250px;
+  aspect-ratio: 1/1;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .board-container {
+    width: 90%;
+  }
+}
+
+@media (max-width: 550px) {
+  .board-container {
+    width: 96%;
+    max-height: 450px;
+    aspect-ratio: 1/1;
+  }
 }

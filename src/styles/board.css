@@ -45,7 +45,7 @@
   .cell.hit,
   .cell.mark,
   .cell.miss {
-    font-size: clamp(25px, 4vh, 2rem);
+    font-size: clamp(0.8rem, 2vh, 2rem);
   }
 }
 
@@ -73,4 +73,10 @@ button.start-game {
 
 button.start-game:hover {
   filter: brightness(var(--hover-brightness));
+}
+
+@media (max-width: 550px) {
+  .start-game {
+    margin-top: 60px;
+  }
 }
