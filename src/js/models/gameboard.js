@@ -67,7 +67,7 @@ export class Gameboard {
       isHorizontal,
       this.board,
     );
-    console.log(this.board);
+    // console.log(this.board);
   }
 
   // Returns an object with newly marked cells after attack, and other properties
