@@ -38,16 +38,16 @@
 .cell.miss {
   font-weight: bold;
   text-align: center;
-  font-size: clamp(1rem, 3vw, 2rem);
+  font-size: clamp(1rem, 2vw, 25px);
 }
 
-@media (max-width: 550px) {
+/* @media (max-width: 550px) {
   .cell.hit,
   .cell.mark,
   .cell.miss {
     font-size: clamp(0.8rem, 2vh, 2rem);
   }
-}
+} */
 
 .cell.miss {
   color: var(--color-alert);
@@ -75,8 +75,8 @@ button.start-game:hover {
   filter: brightness(var(--hover-brightness));
 }
 
-@media (max-width: 550px) {
+/* @media (max-width: 550px) {
   .start-game {
     margin-top: 60px;
   }
-}
+} */
